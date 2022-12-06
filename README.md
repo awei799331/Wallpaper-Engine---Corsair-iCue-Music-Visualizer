@@ -1,6 +1,7 @@
 # Wallpaper Engine - Corsair iCue Music Visualizer
 A customizable web wallpaper with built-in clock and audio visualizer that syncs with Corsair keyboards compatible with iCue.
 Tested working on Wallpaper Engine, other desktop wallpaper applications may not work.
+Published on Steam Workshop! Check it out here: https://steamcommunity.com/sharedfiles/filedetails/?id=2897257202
 
 ![image](https://user-images.githubusercontent.com/47440214/205839276-3957ff81-e0fa-46b6-b6c5-2649a84cf47e.png)
 
