@@ -27,6 +27,7 @@ Users are encouraged to tweak their animation thresholds for best experience sin
 - Background Shake Amount: Changes the amount of rocking. Scale is multiplied by 0.5 degrees of turn
 - Background Shake Threshold: Changes the minimum intensity of audio to trigger the animation
 - Bar Width: Changes the width of the desktop music bars in pixels
+- Clock: Toggles desktop clock
 - Keyboard Color High: Changes the linear gradient of bars on the keyboard visualizer for high intensity
 - Keyboard Color Low: Changes the linear gradient of bars on the keyboard visualizer for low intensity
 - Keyboard Sensitivity: Scales the bar heights for the keyboard visualizer 
