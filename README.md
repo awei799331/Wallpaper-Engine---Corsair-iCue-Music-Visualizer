@@ -2,6 +2,8 @@
 A customizable web wallpaper with built-in clock and audio visualizer that syncs with Corsair keyboards compatible with iCue.
 Tested working on Wallpaper Engine, other desktop wallpaper applications may not work.
 
+![image](https://user-images.githubusercontent.com/47440214/205839276-3957ff81-e0fa-46b6-b6c5-2649a84cf47e.png)
+
 The music visualizer is for Corsair keyboards with support for iCue. I don't own a Razer keyboard, so there will not be Chroma support unfortunately. If you do not own a Corsair keyboard, be sure to turn off the `Keyboard Visualizer` property for better performance.
 
 If you choose to upload your own background, make sure to not rename or move the file, or you would have to reupload it again.
