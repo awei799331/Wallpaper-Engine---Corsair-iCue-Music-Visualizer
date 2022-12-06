@@ -21,6 +21,7 @@ let defaultProperties = {
     backgroundshakeamount: 1,
     backgroundshakethreshold: 0.25,
     barwidth: 4,
+    clock: true,
     keyboardcolorhigh: [0, 0, 255],
     keyboardcolorlow: [255, 0, 0],
     keyboardsensitivity: 1,
