@@ -1,0 +1,61 @@
+@font-face {
+  font-family: PoiretOne;
+  src: url('./PoiretOne-Regular.ttf');
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.mainImg {
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  transition: all ease-out 0.2s; 
+}
+.mainImg::before {
+  content: "";
+  position: absolute;
+  background-image: var(--image);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: var(--positionx) var(--positiony);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 1;
+  transform: scale(var(--zoomscale)) rotate(var(--rotate));
+  opacity: var(--opacity);
+  transition: inherit; 
+}
+
+.canvas {
+  /* position: absolute;
+  z-index: -2; */
+  display: none;
+}
+
+.flex {
+  padding-top: 62vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clock {
+  color: white;
+  font-family: PoiretOne, sans-serif;
+  font-size: 4em;
+  z-index: 2;
+}
+
+.visualizer {
+  z-index: 2;
+  overflow: hidden;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
