@@ -33,8 +33,14 @@ body {
 
 .canvas {
   /* position: absolute;
-  z-index: -2; */
+  z-index: 100; */
   display: none;
+}
+
+.canvasdebug {
+  position: absolute;
+  z-index: 100;
+  /* display: none; */
 }
 
 .flex {

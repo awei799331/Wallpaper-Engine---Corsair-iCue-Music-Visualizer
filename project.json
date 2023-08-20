@@ -1,6 +1,6 @@
 {
 	"contentrating" : "Everyone",
-	"description" : "The music visualizer is for Corsair keyboards with support for iCue. I don't own a Razer keyboard, so there will not be Chroma support unfortunately.\n\nIf you choose to upload your own background, make sure to not rename or move the file, or you would have to reupload it again.\n\nPerformance:\nGPU usage (RTX 3060 Ti):\nMax of 25% at ~500MHz / 1710MHz Boost Clock\nTurning off all background animations reduces it to around 10% of ~500MHz / 1710 MHz.\nClock only reduces GPU load to 3% of of ~200MHz / 1710 MHz.\n\nv1.0: Release",
+	"description" : "The music visualizer is for Corsair keyboards with support for iCue. I don't own a Razer keyboard, so there will not be Chroma support unfortunately.\n\nIf you choose to upload your own background, make sure to not rename or move the file, or you would have to reupload it again.\n\nFor suggestions / bug reports, submit an issue on the GitHub repository: https://github.com/awei799331/Wallpaper-Engine---Corsair-iCue-Music-Visualizer\n\nPerformance:\nGPU usage (RTX 3060 Ti):\nMax of 25% at ~500MHz / 1710MHz Boost Clock\nTurning off all background animations reduces it to around 10% of ~500MHz / 1710 MHz.\nClock only reduces GPU load to 3% of of ~200MHz / 1710 MHz.\n\nv1.0: Release\nv1.1: Bug fixes, better FPS tuning, experimental options to control Corsair RGB fans connected to a Corsair Lighting Node",
 	"file" : "index.html",
 	"general" : 
 	{
@@ -140,7 +140,7 @@
 				"step" : 0.1,
 				"text" : "Background Shake Amount",
 				"type" : "slider",
-				"value" : 1
+				"value" : 1.5
 			},
 			"backgroundshakethreshold" : 
 			{
@@ -176,6 +176,14 @@
 				"type" : "bool",
 				"value" : true
 			},
+			"experimentalsettings" : 
+			{
+				"index" : 23,
+				"order" : 123,
+				"text" : "EXPERIMENTAL SETTINGS",
+				"type" : "bool",
+				"value" : false
+			},
 			"imageopacity" : 
 			{
 				"fraction" : true,
@@ -207,20 +215,6 @@
 				"type" : "color",
 				"value" : "0 0 1"
 			},
-			"keyboardsensitivity" : 
-			{
-				"condition" : "keyboardvisualizer.value==true",
-				"fraction" : true,
-				"index" : 2,
-				"max" : 5,
-				"min" : 0,
-				"order" : 102,
-				"precision" : 2,
-				"step" : 0.1,
-				"text" : "Keyboard Sensitivity",
-				"type" : "slider",
-				"value" : 1
-			},
 			"keyboardvisualizer" : 
 			{
 				"index" : 1,
@@ -228,6 +222,52 @@
 				"text" : "Keyboard Visualizer",
 				"type" : "bool",
 				"value" : true
+			},
+			"lightingnodelightcount" : 
+			{
+				"condition" : "lightingnodevisualizer.value==true",
+				"fraction" : false,
+				"index" : 21,
+				"max" : 204,
+				"min" : 0,
+				"order" : 121,
+				"text" : "Lighting Node Light Count",
+				"type" : "slider",
+				"value" : 0
+			},
+			"lightingnodelightthreshold" : 
+			{
+				"condition" : "lightingnodevisualizer.value==true",
+				"fraction" : false,
+				"index" : 22,
+				"max" : 204,
+				"min" : 0,
+				"order" : 122,
+				"text" : "Lighting Node Light Threshold",
+				"type" : "slider",
+				"value" : 2
+			},
+			"lightingnodevisualizer" : 
+			{
+				"condition" : "experimentalsettings.value===true",
+				"index" : 24,
+				"order" : 124,
+				"text" : "EXPERIMENTAL: Lighting Node Visualizer - DO NOT ENABLE IF YOU DON'T USE A LIGHTING NODE",
+				"type" : "bool",
+				"value" : false
+			},
+			"lightsensitivity" : 
+			{
+				"fraction" : true,
+				"index" : 2,
+				"max" : 5,
+				"min" : 0,
+				"order" : 102,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Light Sensitivity",
+				"type" : "slider",
+				"value" : 1
 			},
 			"musicbars" : 
 			{
@@ -248,8 +288,6 @@
 		"supportsaudioprocessing" : true
 	},
 	"preview" : "preview.jpg",
-	"snapshotformat" : -1,
-	"snapshotoverlay" : "",
 	"tags" : [ "Abstract" ],
 	"title" : "Fully Customizable Wallpaper - iCue Music Visualizer v1.0",
 	"type" : "web",
