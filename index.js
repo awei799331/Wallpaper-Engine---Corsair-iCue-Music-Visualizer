@@ -72,6 +72,7 @@ const colorWheel = {
 let timeInterval = null;
 let visualizerInterval = null;
 
+
 function hide(el) {
   el.classList.add("hidden");
   el.classList.remove("visible");
@@ -80,6 +81,23 @@ function hide(el) {
 function show(el) {
   el.classList.add("visible");
   el.classList.remove("hidden");
+}
+
+function changeToDefaultWallpaper() {
+  globalProperties.backgroundvideo = "";
+  globalProperties.backgroundimage = "default_wallpaper.jpg";
+
+  // set background video to hidden
+  backgroundVideoSrc.setAttribute("src", "");
+  backgroundVideo.pause();
+  hide(backgroundVideo);
+  backgroundVideo.currentTime = 0;
+  // set image
+  applyStyle(mainImgSelector,
+    "--image",
+    `url(${globalProperties.backgroundimage})`
+  );
+  show(backgroundImage);
 }
 
 
@@ -112,8 +130,6 @@ window.wallpaperPropertyListener = {
         properties.backgroundflashthreshold.value;
     }
 
-    console.log(properties)
-
     if (properties.backgroundimage || properties.backgroundvideo) {
       if (properties?.backgroundimage?.value && properties?.backgroundvideo?.value) {
         globalProperties.backgroundvideo =
@@ -121,6 +137,7 @@ window.wallpaperPropertyListener = {
         globalProperties.backgroundimage = "";
         // set background video
         backgroundVideoSrc.setAttribute("src", globalProperties.backgroundvideo);
+        backgroundVideo.load();
         backgroundVideo.currentTime = 0;
         show(backgroundVideo);
         backgroundVideo.play();
@@ -142,6 +159,7 @@ window.wallpaperPropertyListener = {
           "--image",
           `url(${globalProperties.backgroundimage})`,
         );
+        show(backgroundImage);
 
       } else if (properties?.backgroundvideo?.value && !properties?.backgroundimage?.value) {
         globalProperties.backgroundvideo =
@@ -150,6 +168,7 @@ window.wallpaperPropertyListener = {
 
         // set background video
         backgroundVideoSrc.setAttribute("src", globalProperties.backgroundvideo);
+        backgroundVideo.load();
         backgroundVideo.currentTime = 0;
         show(backgroundVideo);
         backgroundVideo.play();
@@ -158,19 +177,7 @@ window.wallpaperPropertyListener = {
         applyStyle(mainImgSelector, "--image", null);
 
       } else {
-        globalProperties.backgroundvideo = "";
-        globalProperties.backgroundimage = "default_wallpaper.jpg";
-
-        // set background video to hidden
-        backgroundVideoSrc.setAttribute("src", "");
-        backgroundVideo.pause();
-        hide(backgroundVideo);
-        backgroundVideo.currentTime = 0;
-        // set image
-        applyStyle(mainImgSelector,
-          "--image",
-          `url(${globalProperties.backgroundimage})`
-        );
+        changeToDefaultWallpaper();
       }
     }
 
