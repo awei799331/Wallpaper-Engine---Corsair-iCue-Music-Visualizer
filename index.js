@@ -9,7 +9,22 @@ let fanUpdateList = [];
 let visualizerCanvas = document.getElementById("visualizer");
 let visualizerCanvasCtx = visualizerCanvas.getContext("2d");
 
-let imgStyle = document.querySelector(".mainImg").style;
+let backgroundImage = document.getElementById("background");
+let backgroundVideo = document.getElementById("backgroundVideo");
+let backgroundVideoSrc = document.getElementById("backgroundVideoSrc");
+
+let mainImgSelector = document.querySelectorAll(".mainImg");
+let imgStyles = []
+mainImgSelector.forEach((item) => {
+  imgStyles.push(item);
+});
+
+function applyStyle(selectorList, variable, value) {
+  selectorList.forEach((item) => {
+    item.style.setProperty(variable, value);
+  })
+}
+
 let fps = 20;
 let defaultProperties = {
   animatebackground: true,
@@ -25,6 +40,7 @@ let defaultProperties = {
   backgroundshake: true,
   backgroundshakeamount: 1,
   backgroundshakethreshold: 0.25,
+  backgroundvideo: null,
   barwidth: 4,
   clock: true,
   experimentalsettings: false,
@@ -56,22 +72,33 @@ const colorWheel = {
 let timeInterval = null;
 let visualizerInterval = null;
 
+function hide(el) {
+  el.classList.add("hidden");
+  el.classList.remove("visible");
+}
+
+function show(el) {
+  el.classList.add("visible");
+  el.classList.remove("hidden");
+}
+
+
 window.wallpaperPropertyListener = {
   applyUserProperties: function (properties) {
     if (properties.animatebackground) {
       globalProperties.animatebackground = properties.animatebackground.value;
       if (!properties.animatebackground.value) {
         globalProperties.animatebackground = false;
-        imgStyle.setProperty("--zoomscale", 1.02);
-        imgStyle.setProperty("--opacity", globalProperties.opacity);
-        imgStyle.setProperty("--rotate", 0);
+        applyStyle(mainImgSelector, "--zoomscale", 1.02);
+        applyStyle(mainImgSelector, "--opacity", globalProperties.opacity);
+        applyStyle(mainImgSelector, "--rotate", 0);
       }
     }
 
     if (properties.backgroundflash) {
       globalProperties.backgroundflash = properties.backgroundflash.value;
       if (!globalProperties.backgroundflash) {
-        imgStyle.setProperty("--opacity", globalProperties.opacity);
+        applyStyle(mainImgSelector, "--opacity", globalProperties.opacity);
       }
     }
 
@@ -85,23 +112,72 @@ window.wallpaperPropertyListener = {
         properties.backgroundflashthreshold.value;
     }
 
-    if (properties.backgroundimage) {
-      if (properties.backgroundimage.value) {
+    console.log(properties)
+
+    if (properties.backgroundimage || properties.backgroundvideo) {
+      if (properties?.backgroundimage?.value && properties?.backgroundvideo?.value) {
+        globalProperties.backgroundvideo =
+          "file:///" + decodeURIComponent(properties.backgroundvideo.value);
+        globalProperties.backgroundimage = "";
+        // set background video
+        backgroundVideoSrc.setAttribute("src", globalProperties.backgroundvideo);
+        backgroundVideo.currentTime = 0;
+        show(backgroundVideo);
+        backgroundVideo.play();
+        // set image to hidden
+        hide(backgroundImage);
+        applyStyle(mainImgSelector, "--image", null);
+
+      } else if (properties?.backgroundimage?.value && !properties?.backgroundvideo?.value) {
         globalProperties.backgroundimage =
           "file:///" + properties.backgroundimage.value;
+        globalProperties.backgroundvideo = "";
+
+        // set background video to none
+        backgroundVideo.pause();
+        hide(backgroundVideo);
+        backgroundVideo.currentTime = 0;
+        // set background image
+        applyStyle(mainImgSelector,
+          "--image",
+          `url(${globalProperties.backgroundimage})`,
+        );
+
+      } else if (properties?.backgroundvideo?.value && !properties?.backgroundimage?.value) {
+        globalProperties.backgroundvideo =
+          "file:///" + decodeURIComponent(properties.backgroundvideo.value);
+        globalProperties.backgroundimage = "";
+
+        // set background video
+        backgroundVideoSrc.setAttribute("src", globalProperties.backgroundvideo);
+        backgroundVideo.currentTime = 0;
+        show(backgroundVideo);
+        backgroundVideo.play();
+        // set image to hidden
+        hide(backgroundImage);
+        applyStyle(mainImgSelector, "--image", null);
+
       } else {
+        globalProperties.backgroundvideo = "";
         globalProperties.backgroundimage = "default_wallpaper.jpg";
+
+        // set background video to hidden
+        backgroundVideoSrc.setAttribute("src", "");
+        backgroundVideo.pause();
+        hide(backgroundVideo);
+        backgroundVideo.currentTime = 0;
+        // set image
+        applyStyle(mainImgSelector,
+          "--image",
+          `url(${globalProperties.backgroundimage})`
+        );
       }
-      imgStyle.setProperty(
-        "--image",
-        `url(${globalProperties.backgroundimage})`
-      );
     }
 
     if (properties.backgroundpositionx) {
       globalProperties.backgroundpositionx =
         properties.backgroundpositionx.value;
-      imgStyle.setProperty(
+      applyStyle(mainImgSelector,
         "--positionx",
         `${globalProperties.backgroundpositionx}%`
       );
@@ -110,7 +186,7 @@ window.wallpaperPropertyListener = {
     if (properties.backgroundpositiony) {
       globalProperties.backgroundpositiony =
         properties.backgroundpositiony.value;
-      imgStyle.setProperty(
+      applyStyle(mainImgSelector,
         "--positiony",
         `${globalProperties.backgroundpositiony}%`
       );
@@ -119,7 +195,7 @@ window.wallpaperPropertyListener = {
     if (properties.backgroundpulse) {
       globalProperties.backgroundpulse = properties.backgroundpulse.value;
       if (!globalProperties.backgroundpulse) {
-        imgStyle.setProperty("--zoomscale", 1.02);
+        applyStyle(mainImgSelector, "--zoomscale", 1.02);
       }
     }
 
@@ -136,7 +212,7 @@ window.wallpaperPropertyListener = {
     if (properties.backgroundshake) {
       globalProperties.backgroundshake = properties.backgroundshake.value;
       if (!globalProperties.backgroundshake) {
-        imgStyle.setProperty("--rotate", 0);
+        applyStyle(mainImgSelector, "--rotate", 0);
       }
     }
 
@@ -177,7 +253,7 @@ window.wallpaperPropertyListener = {
 
     if (properties.imageopacity) {
       globalProperties.opacity = properties.imageopacity.value;
-      imgStyle.setProperty("--opacity", globalProperties.opacity);
+      applyStyle(mainImgSelector, "--opacity", globalProperties.opacity);
     }
 
     if (properties.keyboardcolorhigh) {
@@ -382,39 +458,42 @@ const animateImage = (audioArray, bassSound) => {
     globalProperties.backgroundpulse &&
     bassSound >= globalProperties.backgroundpulsethreshold
   ) {
-    imgStyle.setProperty(
+    applyStyle(mainImgSelector,
       "--zoomscale",
       0.02 + Math.pow(globalProperties.backgroundpulseamount * 1.2, bassSound)
     );
   } else {
-    imgStyle.setProperty("--zoomscale", 1.02);
+    applyStyle(mainImgSelector, "--zoomscale", 1.02);
   }
 
   if (
     globalProperties.backgroundflash &&
     bassSound >= globalProperties.backgroundflashthreshold
   ) {
-    imgStyle.setProperty(
+    applyStyle(mainImgSelector,
       "--opacity",
       Math.min(
-        globalProperties.opacity + globalProperties.backgroundflashamount,
+        Math.round(
+          (globalProperties.opacity + globalProperties.backgroundflashamount) *
+          10
+        ) / 10,
         1
       )
     );
   } else {
-    imgStyle.setProperty("--opacity", Math.min(globalProperties.opacity, 1));
+    applyStyle(mainImgSelector, "--opacity", Math.min(globalProperties.opacity, 1));
   }
 
   if (
     globalProperties.backgroundshake &&
     bassSound >= globalProperties.backgroundshakethreshold
   ) {
-    imgStyle.setProperty(
+    applyStyle(mainImgSelector,
       "--rotate",
       `${globalProperties.backgroundshakeamount * (Math.random() * 2 - 1)}deg`
     );
   } else {
-    imgStyle.setProperty("--rotate", 0);
+    applyStyle(mainImgSelector, "--rotate", 0);
   }
 };
 
@@ -456,19 +535,19 @@ const drawKeyboardCanvas = (audioArray) => {
     let height = audioCanvas.height * heightPercent;
     audioCanvasCtx.fillStyle = `rgb(${Math.min(
       globalProperties.keyboardcolorlow[0] +
-        heightPercent *
-          (globalProperties.keyboardcolorhigh[0] -
-            globalProperties.keyboardcolorlow[0])
+      heightPercent *
+      (globalProperties.keyboardcolorhigh[0] -
+        globalProperties.keyboardcolorlow[0])
     )}, ${Math.min(
       globalProperties.keyboardcolorlow[1] +
-        heightPercent *
-          (globalProperties.keyboardcolorhigh[1] -
-            globalProperties.keyboardcolorlow[1])
+      heightPercent *
+      (globalProperties.keyboardcolorhigh[1] -
+        globalProperties.keyboardcolorlow[1])
     )}, ${Math.min(
       globalProperties.keyboardcolorlow[2] +
-        heightPercent *
-          (globalProperties.keyboardcolorhigh[2] -
-            globalProperties.keyboardcolorlow[2])
+      heightPercent *
+      (globalProperties.keyboardcolorhigh[2] -
+        globalProperties.keyboardcolorlow[2])
     )})`;
     audioCanvasCtx.fillRect(i, audioCanvas.height - height, 1, height);
   }
@@ -481,19 +560,19 @@ const drawKeyboardCanvas = (audioArray) => {
     let height = audioCanvas.height * heightPercent;
     audioCanvasCtx.fillStyle = `rgb(${Math.min(
       globalProperties.keyboardcolorlow[0] +
-        heightPercent *
-          (globalProperties.keyboardcolorhigh[0] -
-            globalProperties.keyboardcolorlow[0])
+      heightPercent *
+      (globalProperties.keyboardcolorhigh[0] -
+        globalProperties.keyboardcolorlow[0])
     )}, ${Math.min(
       globalProperties.keyboardcolorlow[1] +
-        heightPercent *
-          (globalProperties.keyboardcolorhigh[1] -
-            globalProperties.keyboardcolorlow[1])
+      heightPercent *
+      (globalProperties.keyboardcolorhigh[1] -
+        globalProperties.keyboardcolorlow[1])
     )}, ${Math.min(
       globalProperties.keyboardcolorlow[2] +
-        heightPercent *
-          (globalProperties.keyboardcolorhigh[2] -
-            globalProperties.keyboardcolorlow[2])
+      heightPercent *
+      (globalProperties.keyboardcolorhigh[2] -
+        globalProperties.keyboardcolorlow[2])
     )})`;
     audioCanvasCtx.fillRect(i, audioCanvas.height - height, 1, height);
   }
@@ -504,7 +583,7 @@ const createFanUpdateList = (bassSound) => {
 
   const lightsOn = Math.min(
     globalProperties.lightsensitivity *
-      Math.round(bassSound * globalProperties.lightingnodelightcount),
+    Math.round(bassSound * globalProperties.lightingnodelightcount),
     globalProperties.lightingnodelightcount
   );
 
