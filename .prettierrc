@@ -1,0 +1,14 @@
+{
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "useTabs": false,
+  "overrides": [
+    {
+      "files": ["index.html", "index.js", "styles.css"],
+      "options": {
+        "plugins": ["prettier-plugin-jsdoc"]
+      }
+    }
+  ]
+}

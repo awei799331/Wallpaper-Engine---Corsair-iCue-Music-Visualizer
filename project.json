@@ -1,6 +1,6 @@
 {
 	"contentrating" : "Everyone",
-	"description" : "The music visualizer is for Corsair keyboards with support for iCue. I don't own a Razer keyboard, so there will not be Chroma support unfortunately.\n\nIf you choose to upload your own background, make sure to not rename or move the file, or you would have to reupload it again.\n\nFor suggestions / bug reports, submit an issue on the GitHub repository: https://github.com/awei799331/Wallpaper-Engine---Corsair-iCue-Music-Visualizer\n\nPerformance:\nGPU usage (RTX 3060 Ti):\nMax of 25% at ~500MHz / 1710MHz Boost Clock\nTurning off all background animations reduces it to around 10% of ~500MHz / 1710 MHz.\nClock only reduces GPU load to 3% of of ~200MHz / 1710 MHz.\n\nv1.0: Release\nv1.1: Bug fixes,configurable FPS, experimental Corsair Lighting Node effects",
+	"description" : "The music visualizer is for Corsair keyboards with support for iCue. I don't own a Razer keyboard, so there will not be Chroma support unfortunately.\r\n\r\nIf you choose to upload your own background, make sure to not rename or move the file, or you would have to reupload it again.\r\n\r\nFor suggestions / bug reports, submit an issue on the GitHub repository: https://github.com/awei799331/Wallpaper-Engine---Corsair-iCue-Music-Visualizer\r\n\r\nPerformance:\r\nGPU usage (RTX 3060 Ti):\r\nMax of 25% at ~500MHz / 1710MHz Boost Clock\r\nTurning off all background animations reduces it to around 10% of ~500MHz / 1710 MHz.\r\nClock only reduces GPU load to 3% of of ~200MHz / 1710 MHz.\r\n\r\nv1.0: Release\r\nv1.1: Bug fixes,configurable FPS, experimental Corsair Lighting Node effects",
 	"file" : "index.html",
 	"general" : 
 	{
@@ -8,8 +8,8 @@
 		{
 			"animatebackground" : 
 			{
-				"index" : 11,
-				"order" : 111,
+				"index" : 12,
+				"order" : 112,
 				"text" : "Animate Background",
 				"type" : "bool",
 				"value" : true
@@ -17,8 +17,8 @@
 			"backgroundflash" : 
 			{
 				"condition" : "animatebackground.value==true",
-				"index" : 12,
-				"order" : 112,
+				"index" : 13,
+				"order" : 113,
 				"text" : "Background Flash",
 				"type" : "bool",
 				"value" : true
@@ -27,10 +27,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundflash.value==true",
 				"fraction" : true,
-				"index" : 13,
+				"index" : 14,
 				"max" : 1,
 				"min" : 0,
-				"order" : 113,
+				"order" : 114,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Background Flash Amount",
@@ -41,10 +41,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundflash.value==true",
 				"fraction" : true,
-				"index" : 14,
+				"index" : 15,
 				"max" : 1,
 				"min" : 0,
-				"order" : 114,
+				"order" : 115,
 				"precision" : 3,
 				"step" : 0.01,
 				"text" : "Background Flash Threshold",
@@ -63,10 +63,10 @@
 			"backgroundpositionx" : 
 			{
 				"fraction" : false,
-				"index" : 9,
+				"index" : 10,
 				"max" : 100,
 				"min" : -100,
-				"order" : 109,
+				"order" : 110,
 				"text" : "Background Position X",
 				"type" : "slider",
 				"value" : 30
@@ -74,10 +74,10 @@
 			"backgroundpositiony" : 
 			{
 				"fraction" : false,
-				"index" : 10,
+				"index" : 11,
 				"max" : 100,
 				"min" : -100,
-				"order" : 110,
+				"order" : 111,
 				"text" : "Background Position Y",
 				"type" : "slider",
 				"value" : 10
@@ -85,8 +85,8 @@
 			"backgroundpulse" : 
 			{
 				"condition" : "animatebackground.value==true",
-				"index" : 15,
-				"order" : 115,
+				"index" : 16,
+				"order" : 116,
 				"text" : "Background Pulse",
 				"type" : "bool",
 				"value" : true
@@ -95,10 +95,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundpulse.value==true",
 				"fraction" : true,
-				"index" : 16,
+				"index" : 17,
 				"max" : 2,
 				"min" : 1,
-				"order" : 116,
+				"order" : 117,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Background Pulse Amount",
@@ -109,10 +109,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundpulse.value==true",
 				"fraction" : true,
-				"index" : 17,
+				"index" : 18,
 				"max" : 1,
 				"min" : 0,
-				"order" : 117,
+				"order" : 118,
 				"precision" : 3,
 				"step" : 0.01,
 				"text" : "Background Pulse Threshold",
@@ -122,8 +122,8 @@
 			"backgroundshake" : 
 			{
 				"condition" : "animatebackground.value==true",
-				"index" : 18,
-				"order" : 118,
+				"index" : 19,
+				"order" : 119,
 				"text" : "Background Shake",
 				"type" : "bool",
 				"value" : true
@@ -132,10 +132,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundshake.value==true",
 				"fraction" : true,
-				"index" : 19,
+				"index" : 20,
 				"max" : 5,
 				"min" : 0,
-				"order" : 119,
+				"order" : 120,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Background Shake Amount",
@@ -146,40 +146,49 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundshake.value==true",
 				"fraction" : true,
-				"index" : 20,
+				"index" : 21,
 				"max" : 1,
 				"min" : 0,
-				"order" : 120,
+				"order" : 121,
 				"precision" : 3,
 				"step" : 0.01,
 				"text" : "Background Shake Threshold",
 				"type" : "slider",
 				"value" : 0.25
 			},
+			"backgroundvideo" : 
+			{
+				"fileType" : "video",
+				"index" : 1,
+				"order" : 101,
+				"text" : "Background Video",
+				"type" : "file",
+				"value" : ""
+			},
 			"barwidth" : 
 			{
 				"condition" : "musicbars.value==true",
 				"fraction" : false,
-				"index" : 7,
+				"index" : 8,
 				"max" : 32,
 				"min" : 1,
-				"order" : 107,
+				"order" : 108,
 				"text" : "Bar Width",
 				"type" : "slider",
 				"value" : 4
 			},
 			"clock" : 
 			{
-				"index" : 5,
-				"order" : 105,
+				"index" : 6,
+				"order" : 106,
 				"text" : "Clock",
 				"type" : "bool",
 				"value" : true
 			},
 			"experimentalsettings" : 
 			{
-				"index" : 23,
-				"order" : 123,
+				"index" : 24,
+				"order" : 124,
 				"text" : "EXPERIMENTAL SETTINGS",
 				"type" : "bool",
 				"value" : false
@@ -187,10 +196,10 @@
 			"imageopacity" : 
 			{
 				"fraction" : true,
-				"index" : 8,
+				"index" : 9,
 				"max" : 1,
 				"min" : 0,
-				"order" : 108,
+				"order" : 109,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Image Opacity",
@@ -200,8 +209,8 @@
 			"keyboardcolorhigh" : 
 			{
 				"condition" : "keyboardvisualizer.value==true",
-				"index" : 4,
-				"order" : 104,
+				"index" : 5,
+				"order" : 105,
 				"text" : "Keyboard Color High",
 				"type" : "color",
 				"value" : "1 0 0"
@@ -209,16 +218,16 @@
 			"keyboardcolorlow" : 
 			{
 				"condition" : "keyboardvisualizer.value==true",
-				"index" : 3,
-				"order" : 103,
+				"index" : 4,
+				"order" : 104,
 				"text" : "Keyboard Color Low",
 				"type" : "color",
 				"value" : "0 0 1"
 			},
 			"keyboardvisualizer" : 
 			{
-				"index" : 1,
-				"order" : 101,
+				"index" : 2,
+				"order" : 102,
 				"text" : "Keyboard Visualizer",
 				"type" : "bool",
 				"value" : true
@@ -227,10 +236,10 @@
 			{
 				"condition" : "lightingnodevisualizer.value==true",
 				"fraction" : false,
-				"index" : 21,
+				"index" : 22,
 				"max" : 204,
 				"min" : 0,
-				"order" : 121,
+				"order" : 122,
 				"text" : "Lighting Node Light Count",
 				"type" : "slider",
 				"value" : 0
@@ -239,10 +248,10 @@
 			{
 				"condition" : "lightingnodevisualizer.value==true",
 				"fraction" : false,
-				"index" : 22,
+				"index" : 23,
 				"max" : 204,
 				"min" : 0,
-				"order" : 122,
+				"order" : 123,
 				"text" : "Lighting Node Light Threshold",
 				"type" : "slider",
 				"value" : 2
@@ -250,8 +259,8 @@
 			"lightingnodevisualizer" : 
 			{
 				"condition" : "experimentalsettings.value===true",
-				"index" : 24,
-				"order" : 124,
+				"index" : 25,
+				"order" : 125,
 				"text" : "EXPERIMENTAL: Lighting Node Visualizer - DO NOT ENABLE IF YOU DON'T USE A LIGHTING NODE",
 				"type" : "bool",
 				"value" : false
@@ -259,10 +268,10 @@
 			"lightsensitivity" : 
 			{
 				"fraction" : true,
-				"index" : 2,
+				"index" : 3,
 				"max" : 5,
 				"min" : 0,
-				"order" : 102,
+				"order" : 103,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Light Sensitivity",
@@ -271,8 +280,8 @@
 			},
 			"musicbars" : 
 			{
-				"index" : 6,
-				"order" : 106,
+				"index" : 7,
+				"order" : 107,
 				"text" : "Music Bars",
 				"type" : "bool",
 				"value" : true
@@ -288,6 +297,8 @@
 		"supportsaudioprocessing" : true
 	},
 	"preview" : "preview.jpg",
+	"ratingsex" : "none",
+	"ratingviolence" : "none",
 	"tags" : [ "Abstract" ],
 	"title" : "Fully Customizable Wallpaper - iCue Music Visualizer v1.1",
 	"type" : "web",

@@ -10,14 +10,9 @@ body {
 }
 
 .mainImg {
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  transition: all ease-out 0.2s; 
-}
-.mainImg::before {
   content: "";
-  position: absolute;
+  position: fixed;
+  background-color: transparent;
   background-image: var(--image);
   background-repeat: no-repeat;
   background-size: cover;
@@ -27,8 +22,16 @@ body {
   overflow: hidden;
   z-index: 1;
   transform: scale(var(--zoomscale)) rotate(var(--rotate));
-  opacity: var(--opacity);
-  transition: inherit; 
+  filter: opacity(var(--opacity));
+  transition: transform ease-out 0.2s, filter ease-in-out 0.4s;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
 }
 
 .canvas {
@@ -37,9 +40,9 @@ body {
   display: none;
 }
 
-.canvasdebug {
-  position: absolute;
+.debug {
   z-index: 100;
+  color: white;
   /* display: none; */
 }
 
@@ -54,7 +57,7 @@ body {
   color: white;
   font-family: PoiretOne, sans-serif;
   font-size: 4em;
-  z-index: 2;
+  z-index: 3;
 }
 
 .visualizer {

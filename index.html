@@ -10,12 +10,15 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div id="debug" class="debug"></div>
     <canvas id="keyboardCanvas" class="canvas" width="64" height="36"></canvas>
+    <video class="mainImg" autoplay muted loop id="backgroundVideo">
+      <source id="backgroundVideoSrc" src="RaidenGardenFix.webm" type="video/webm" />
+    </video>
     <div id="background" class="mainImg">
-      <div class="flex">
-        <span class="clock" id="clock"></span>
-      </div>
-      <div id="debug" style="color: white"></div>
+    </div>
+    <div class="flex">
+      <span class="clock" id="clock"></span>
     </div>
     <canvas
       id="visualizer"
