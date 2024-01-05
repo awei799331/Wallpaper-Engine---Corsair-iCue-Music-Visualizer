@@ -1,6 +1,6 @@
 @font-face {
   font-family: PoiretOne;
-  src: url('./PoiretOne-Regular.ttf');
+  src: url("./PoiretOne-Regular.ttf");
 }
 
 body {
@@ -23,7 +23,7 @@ body {
   z-index: 1;
   transform: scale(var(--zoomscale)) rotate(var(--rotate));
   filter: opacity(var(--opacity));
-  transition: transform ease-out 0.2s, filter ease-in-out 0.4s;
+  transition: transform ease-out 0.3s, filter ease-in-out 0.4s;
 }
 
 .hidden {

@@ -8,8 +8,8 @@
 		{
 			"animatebackground" : 
 			{
-				"index" : 13,
-				"order" : 113,
+				"index" : 14,
+				"order" : 114,
 				"text" : "Animate Background",
 				"type" : "bool",
 				"value" : true
@@ -17,8 +17,8 @@
 			"backgroundflash" : 
 			{
 				"condition" : "animatebackground.value==true",
-				"index" : 14,
-				"order" : 114,
+				"index" : 15,
+				"order" : 115,
 				"text" : "Background Flash",
 				"type" : "bool",
 				"value" : true
@@ -27,10 +27,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundflash.value==true",
 				"fraction" : true,
-				"index" : 15,
+				"index" : 16,
 				"max" : 1,
 				"min" : 0,
-				"order" : 115,
+				"order" : 116,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Background Flash Amount",
@@ -41,10 +41,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundflash.value==true",
 				"fraction" : true,
-				"index" : 16,
+				"index" : 17,
 				"max" : 1,
 				"min" : 0,
-				"order" : 116,
+				"order" : 117,
 				"precision" : 3,
 				"step" : 0.01,
 				"text" : "Background Flash Threshold",
@@ -85,8 +85,8 @@
 			"backgroundpulse" : 
 			{
 				"condition" : "animatebackground.value==true",
-				"index" : 17,
-				"order" : 117,
+				"index" : 18,
+				"order" : 118,
 				"text" : "Background Pulse",
 				"type" : "bool",
 				"value" : true
@@ -95,12 +95,12 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundpulse.value==true",
 				"fraction" : true,
-				"index" : 18,
+				"index" : 19,
 				"max" : 2,
-				"min" : 1,
-				"order" : 118,
+				"min" : 0,
+				"order" : 119,
 				"precision" : 2,
-				"step" : 0.1,
+				"step" : 0.01,
 				"text" : "Background Pulse Amount",
 				"type" : "slider",
 				"value" : 1
@@ -109,10 +109,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundpulse.value==true",
 				"fraction" : true,
-				"index" : 19,
+				"index" : 20,
 				"max" : 1,
 				"min" : 0,
-				"order" : 119,
+				"order" : 120,
 				"precision" : 3,
 				"step" : 0.01,
 				"text" : "Background Pulse Threshold",
@@ -122,8 +122,8 @@
 			"backgroundshake" : 
 			{
 				"condition" : "animatebackground.value==true",
-				"index" : 20,
-				"order" : 120,
+				"index" : 21,
+				"order" : 121,
 				"text" : "Background Shake",
 				"type" : "bool",
 				"value" : true
@@ -132,10 +132,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundshake.value==true",
 				"fraction" : true,
-				"index" : 21,
+				"index" : 22,
 				"max" : 5,
 				"min" : 0,
-				"order" : 121,
+				"order" : 122,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Background Shake Amount",
@@ -146,10 +146,10 @@
 			{
 				"condition" : "animatebackground.value==true&&backgroundshake.value==true",
 				"fraction" : true,
-				"index" : 22,
+				"index" : 23,
 				"max" : 1,
 				"min" : 0,
-				"order" : 122,
+				"order" : 123,
 				"precision" : 3,
 				"step" : 0.01,
 				"text" : "Background Shake Threshold",
@@ -187,8 +187,8 @@
 			},
 			"experimentalsettings" : 
 			{
-				"index" : 25,
-				"order" : 125,
+				"index" : 26,
+				"order" : 126,
 				"text" : "EXPERIMENTAL SETTINGS",
 				"type" : "bool",
 				"value" : false
@@ -213,6 +213,19 @@
 				"text" : "Currently only WEBM video format is supported. Please only upload either a picture or video, noth both.",
 				"type" : "bool",
 				"value" : true
+			},
+			"initialbackgroundzoom" : 
+			{
+				"fraction" : true,
+				"index" : 13,
+				"max" : 1,
+				"min" : -1,
+				"order" : 113,
+				"precision" : 3,
+				"step" : 0.01,
+				"text" : "Initial Background Zoom",
+				"type" : "slider",
+				"value" : 0.02
 			},
 			"keyboardcolorhigh" : 
 			{
@@ -244,10 +257,10 @@
 			{
 				"condition" : "lightingnodevisualizer.value==true",
 				"fraction" : false,
-				"index" : 23,
+				"index" : 24,
 				"max" : 204,
 				"min" : 0,
-				"order" : 123,
+				"order" : 124,
 				"text" : "Lighting Node Light Count",
 				"type" : "slider",
 				"value" : 0
@@ -256,10 +269,10 @@
 			{
 				"condition" : "lightingnodevisualizer.value==true",
 				"fraction" : false,
-				"index" : 24,
+				"index" : 25,
 				"max" : 204,
 				"min" : 0,
-				"order" : 124,
+				"order" : 125,
 				"text" : "Lighting Node Light Threshold",
 				"type" : "slider",
 				"value" : 2
@@ -267,8 +280,8 @@
 			"lightingnodevisualizer" : 
 			{
 				"condition" : "experimentalsettings.value===true",
-				"index" : 26,
-				"order" : 126,
+				"index" : 27,
+				"order" : 127,
 				"text" : "EXPERIMENTAL: Lighting Node Visualizer - DO NOT ENABLE IF YOU DON'T USE A LIGHTING NODE",
 				"type" : "bool",
 				"value" : false
@@ -310,7 +323,7 @@
 	"tags" : [ "Abstract" ],
 	"title" : "Fully Customizable Wallpaper - iCue Music Visualizer v2.0",
 	"type" : "web",
-	"version" : 8,
+	"version" : 10,
 	"visibility" : "public",
 	"workshopid" : "2897257202",
 	"workshopurl" : "steam://url/CommunityFilePage/2897257202"
