@@ -35,8 +35,8 @@ body {
 }
 
 .canvas {
-  /* position: absolute;
-  z-index: 100; */
+  position: absolute;
+  z-index: 100;
   display: none;
 }
 
