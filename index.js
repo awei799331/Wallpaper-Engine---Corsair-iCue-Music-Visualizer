@@ -15,27 +15,59 @@ const applyStyle = (selectorList, variable, value) => {
 };
 
 class PropertyManager {
-  constructor({ defaultProperties, fps }) {
-    this.fps = fps;
-    this.properties = defaultProperties;
+  static defaultFps = 20;
+  static defaultProperties = {
+    animatebackground: true,
+    backgroundflash: true,
+    backgroundflashamount: 0.1,
+    backgroundflashthreshold: 0.25,
+    backgroundimage: "default_wallpaper.jpg",
+    backgroundpositionx: 30,
+    backgroundpositiony: 10,
+    backgroundpulse: true,
+    backgroundpulseamount: 1,
+    backgroundpulsethreshold: 0,
+    backgroundshake: true,
+    backgroundshakeamount: 1,
+    backgroundshakethreshold: 0.25,
+    backgroundvideo: null,
+    barwidth: 4,
+    clock: true,
+    experimentalsettings: false,
+    extrabassbars: 3,
+    imageopacity: 0.3,
+    initialbackgroundzoom: 0.02,
+    keyboardcolorhigh: [0, 0, 255],
+    keyboardcolorlow: [255, 0, 0],
+    keyboardvisualizer: true,
+    lightingnodelightcount: 0,
+    lightingnodelightthreshold: 2,
+    lightingnodevisualizer: false,
+    lightsensitivity: 1,
+    musicbars: true,
+  };
+
+  constructor() {
+    this.fps = PropertyManager.defaultFps;
+    this.properties = PropertyManager.defaultProperties;
     this.timeInterval = null;
     this.visualizerInterval = null;
+
     this.icueDevices = [];
-
-    this.audioCanvas = document.getElementById("keyboardCanvas");
-    this.audioCanvasCtx = this.audioCanvas.getContext("2d");
-
     this.fanUpdateList = [];
 
+    this.audioCanvas = document.getElementById("keyboardCanvas");
+    this.audioCanvasCtx = this.audioCanvas.getContext("2d", {
+      willReadFrequently: true,
+    });
     this.visualizerCanvas = document.getElementById("visualizer");
-    this.visualizerCanvasCtx = this.visualizerCanvas.getContext("2d");
-
+    this.visualizerCanvasCtx = this.visualizerCanvas.getContext("2d", {
+      willReadFrequently: true,
+    });
     this.backgroundImage = document.getElementById("background");
     this.backgroundVideo = document.getElementById("backgroundVideo");
     this.backgroundVideoSrc = document.getElementById("backgroundVideoSrc");
-
     this.clockDisplay = document.getElementById("clock");
-
     this.mainImgSelector = document.querySelectorAll(".mainImg");
 
     if (this.clockDisplay && this.properties.clock) {
@@ -174,53 +206,63 @@ class PropertyManager {
       this.audioCanvas.height,
     );
 
-    for (let i = 0; i < 6; ++i) {
+    // Draw double thick bass bars for better irl lighting
+    for (let i = 0; i < this.properties.extrabassbars; ++i) {
       const heightPercent = Math.min(
-        audioArray[~~(i / 2)] * this.properties.lightsensitivity,
+        Math.max(audioArray[i], audioArray[i + 1]) *
+          this.properties.lightsensitivity *
+          1.5,
         1,
       );
       const height = this.audioCanvas.height * heightPercent;
-      this.audioCanvasCtx.fillStyle = `rgb(${Math.min(
+      this.audioCanvasCtx.fillStyle = `rgb(${Math.floor(
         this.properties.keyboardcolorlow[0] +
           heightPercent *
             (this.properties.keyboardcolorhigh[0] -
               this.properties.keyboardcolorlow[0]),
-      )}, ${Math.min(
+      )}, ${Math.floor(
         this.properties.keyboardcolorlow[1] +
           heightPercent *
             (this.properties.keyboardcolorhigh[1] -
               this.properties.keyboardcolorlow[1]),
-      )}, ${Math.min(
+      )}, ${Math.floor(
         this.properties.keyboardcolorlow[2] +
           heightPercent *
             (this.properties.keyboardcolorhigh[2] -
               this.properties.keyboardcolorlow[2]),
       )})`;
       this.audioCanvasCtx.fillRect(
-        i,
+        i * 2,
         this.audioCanvas.height - height,
-        1,
+        2, // double wide
         height,
       );
     }
-    for (let i = 0; i < audioArray.length / 2; ++i) {
+
+    // Draw other bars
+    for (
+      let i = this.properties.extrabassbars * 2;
+      i < audioArray.length / 2;
+      ++i
+    ) {
       // Create an audio bar with its hight depending on the audio volume level of the current frequency
       const heightPercent = Math.min(
-        audioArray[i - 3] * this.properties.lightsensitivity,
+        audioArray[i - this.properties.extrabassbars] *
+          this.properties.lightsensitivity,
         1,
       );
       const height = this.audioCanvas.height * heightPercent;
-      this.audioCanvasCtx.fillStyle = `rgb(${Math.min(
+      this.audioCanvasCtx.fillStyle = `rgb(${Math.floor(
         this.properties.keyboardcolorlow[0] +
           heightPercent *
             (this.properties.keyboardcolorhigh[0] -
               this.properties.keyboardcolorlow[0]),
-      )}, ${Math.min(
+      )}, ${Math.floor(
         this.properties.keyboardcolorlow[1] +
           heightPercent *
             (this.properties.keyboardcolorhigh[1] -
               this.properties.keyboardcolorlow[1]),
-      )}, ${Math.min(
+      )}, ${Math.floor(
         this.properties.keyboardcolorlow[2] +
           heightPercent *
             (this.properties.keyboardcolorhigh[2] -
@@ -683,41 +725,8 @@ const colorWheel = {
   6: { r: 255, g: 128, b: 0 },
   7: { r: 255, g: 0, b: 0 },
 };
-const defaultFps = 20;
-const defaultProperties = {
-  animatebackground: true,
-  backgroundflash: true,
-  backgroundflashamount: 0.1,
-  backgroundflashthreshold: 0.25,
-  backgroundimage: "default_wallpaper.jpg",
-  backgroundpositionx: 30,
-  backgroundpositiony: 10,
-  backgroundpulse: true,
-  backgroundpulseamount: 1,
-  backgroundpulsethreshold: 0,
-  backgroundshake: true,
-  backgroundshakeamount: 1,
-  backgroundshakethreshold: 0.25,
-  backgroundvideo: null,
-  barwidth: 4,
-  clock: true,
-  experimentalsettings: false,
-  initialbackgroundzoom: 0.02,
-  keyboardcolorhigh: [0, 0, 255],
-  keyboardcolorlow: [255, 0, 0],
-  lightsensitivity: 1,
-  keyboardvisualizer: true,
-  lightingnodelightcount: 0,
-  lightingnodelightthreshold: 2,
-  lightingnodevisualizer: false,
-  musicbars: true,
-  imageopacity: 0.3,
-};
 
-const manager = new PropertyManager({
-  defaultProperties,
-  defaultFps,
-});
+const manager = new PropertyManager();
 
 window.wallpaperPropertyListener = {
   applyUserProperties: (properties) => {
@@ -776,5 +785,3 @@ window.wallpaperPluginListener = {
     }
   },
 };
-
-manager.handleFpsChange(manager.fps);
