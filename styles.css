@@ -21,9 +21,28 @@ body {
   height: 100vh;
   overflow: hidden;
   z-index: 1;
-  transform: scale(var(--zoomscale)) rotate(var(--rotate));
+  filter: opacity(var(--baseopacity));
+  scale: var(--basezoomscale);
+}
+
+/* When no subclasses are present, use a different transition */
+.mainImg:not(.flashing, .pulsing, .shaking) {
+  transition: all 1s ease-in-out 1s; /* Slower, different easing */
+}
+
+.mainImg.flashing {
   filter: opacity(var(--opacity));
-  transition: transform ease-out 0.3s, filter ease-in-out 0.4s;
+  transition: all 0.3s ease-in-out 0s;
+}
+
+.mainImg.pulsing {
+  scale: var(--zoomscale);
+  transition: all 0.3s ease-out 0s;
+}
+
+.mainImg.shaking {
+  rotate: var(--rotate);
+  transition: all 0.3s ease-out 0s;
 }
 
 .hidden {
@@ -43,7 +62,7 @@ body {
 .debug {
   z-index: 100;
   color: white;
-  /* display: none; */
+  display: none;
 }
 
 .flex {

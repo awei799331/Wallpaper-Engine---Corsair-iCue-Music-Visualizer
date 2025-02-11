@@ -14,6 +14,16 @@ const applyStyle = (selectorList, variable, value) => {
   });
 };
 
+const toggleClass = (selectorList, className, toggle) => {
+  selectorList.forEach((item) => {
+    if (toggle) {
+      item.classList.add(className);
+    } else {
+      item.classList.remove(className);
+    }
+  });
+};
+
 class PropertyManager {
   static defaultFps = 20;
   static defaultProperties = {
@@ -119,6 +129,7 @@ class PropertyManager {
       this.properties.backgroundpulse &&
       bassSound >= this.properties.backgroundpulsethreshold
     ) {
+      toggleClass(this.mainImgSelector, "pulsing", true);
       applyStyle(
         this.mainImgSelector,
         "--zoomscale",
@@ -126,6 +137,7 @@ class PropertyManager {
           Math.pow(this.properties.backgroundpulseamount * 1.2, bassSound),
       );
     } else {
+      toggleClass(this.mainImgSelector, "pulsing", false);
       applyStyle(
         this.mainImgSelector,
         "--zoomscale",
@@ -137,6 +149,7 @@ class PropertyManager {
       this.properties.backgroundflash &&
       bassSound >= this.properties.backgroundflashthreshold
     ) {
+      toggleClass(this.mainImgSelector, "flashing", true);
       applyStyle(
         this.mainImgSelector,
         "--opacity",
@@ -150,6 +163,7 @@ class PropertyManager {
         ),
       );
     } else {
+      toggleClass(this.mainImgSelector, "flashing", false);
       applyStyle(
         this.mainImgSelector,
         "--opacity",
@@ -161,12 +175,14 @@ class PropertyManager {
       this.properties.backgroundshake &&
       bassSound >= this.properties.backgroundshakethreshold
     ) {
+      toggleClass(this.mainImgSelector, "shaking", true);
       applyStyle(
         this.mainImgSelector,
         "--rotate",
         `${this.properties.backgroundshakeamount * (Math.random() * 2 - 1)}deg`,
       );
     } else {
+      toggleClass(this.mainImgSelector, "shaking", false);
       applyStyle(this.mainImgSelector, "--rotate", 0);
     }
   };
@@ -559,14 +575,18 @@ class PropertyManager {
 
   handleImageOpacityChange = (property) => {
     this.properties.imageopacity = property.value;
-    applyStyle(this.mainImgSelector, "--opacity", this.properties.imageopacity);
+    applyStyle(
+      this.mainImgSelector,
+      "--baseopacity",
+      this.properties.imageopacity,
+    );
   };
 
   handleInitialBackgroundZoomChange = (property) => {
     this.properties.initialbackgroundzoom = property.value ?? 0;
     applyStyle(
       this.mainImgSelector,
-      "--zoomscale",
+      "--basezoomscale",
       1 + this.properties.initialbackgroundzoom,
     );
   };
