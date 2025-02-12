@@ -14,16 +14,6 @@ const applyStyle = (selectorList, variable, value) => {
   });
 };
 
-const toggleClass = (selectorList, className, toggle) => {
-  selectorList.forEach((item) => {
-    if (toggle) {
-      item.classList.add(className);
-    } else {
-      item.classList.remove(className);
-    }
-  });
-};
-
 class PropertyManager {
   static defaultFps = 20;
   static defaultProperties = {
@@ -124,32 +114,13 @@ class PropertyManager {
   // Animate background image
   animateImage = (audioArray, bassSound) => {
     // let totalSound = audioArray.reduce((a, b) => a + b, 0) / audioArray.length;
-
-    if (
-      this.properties.backgroundpulse &&
-      bassSound >= this.properties.backgroundpulsethreshold
-    ) {
-      toggleClass(this.mainImgSelector, "pulsing", true);
-      applyStyle(
-        this.mainImgSelector,
-        "--zoomscale",
-        this.properties.initialbackgroundzoom +
-          Math.pow(this.properties.backgroundpulseamount * 1.2, bassSound),
-      );
-    } else {
-      toggleClass(this.mainImgSelector, "pulsing", false);
-      applyStyle(
-        this.mainImgSelector,
-        "--zoomscale",
-        1 + this.properties.initialbackgroundzoom,
-      );
-    }
+    let transitions = [];
 
     if (
       this.properties.backgroundflash &&
       bassSound >= this.properties.backgroundflashthreshold
     ) {
-      toggleClass(this.mainImgSelector, "flashing", true);
+      transitions.push("filter 0.4s ease-in-out 0s");
       applyStyle(
         this.mainImgSelector,
         "--opacity",
@@ -163,7 +134,7 @@ class PropertyManager {
         ),
       );
     } else {
-      toggleClass(this.mainImgSelector, "flashing", false);
+      transitions.push("filter 1s ease-in-out 1s");
       applyStyle(
         this.mainImgSelector,
         "--opacity",
@@ -172,19 +143,41 @@ class PropertyManager {
     }
 
     if (
+      this.properties.backgroundpulse &&
+      bassSound >= this.properties.backgroundpulsethreshold
+    ) {
+      transitions.push("scale 0.4s ease-out 0s");
+      applyStyle(
+        this.mainImgSelector,
+        "--zoomscale",
+        this.properties.initialbackgroundzoom +
+          Math.pow(this.properties.backgroundpulseamount * 1.2, bassSound),
+      );
+    } else {
+      transitions.push("scale 0.4s ease-out 0.4s");
+      applyStyle(
+        this.mainImgSelector,
+        "--zoomscale",
+        1 + this.properties.initialbackgroundzoom,
+      );
+    }
+
+    if (
       this.properties.backgroundshake &&
       bassSound >= this.properties.backgroundshakethreshold
     ) {
-      toggleClass(this.mainImgSelector, "shaking", true);
+      transitions.push("rotate 0.4s ease-out 0s");
       applyStyle(
         this.mainImgSelector,
         "--rotate",
         `${this.properties.backgroundshakeamount * (Math.random() * 2 - 1)}deg`,
       );
     } else {
-      toggleClass(this.mainImgSelector, "shaking", false);
+      transitions.push("rotate 0.4s ease-out 0.4s");
       applyStyle(this.mainImgSelector, "--rotate", 0);
     }
+
+    applyStyle(this.mainImgSelector, "transition", transitions.join(","));
   };
 
   // Music bars at the bottom of the desktop
@@ -575,18 +568,14 @@ class PropertyManager {
 
   handleImageOpacityChange = (property) => {
     this.properties.imageopacity = property.value;
-    applyStyle(
-      this.mainImgSelector,
-      "--baseopacity",
-      this.properties.imageopacity,
-    );
+    applyStyle(this.mainImgSelector, "--opacity", this.properties.imageopacity);
   };
 
   handleInitialBackgroundZoomChange = (property) => {
     this.properties.initialbackgroundzoom = property.value ?? 0;
     applyStyle(
       this.mainImgSelector,
-      "--basezoomscale",
+      "--zoomscale",
       1 + this.properties.initialbackgroundzoom,
     );
   };
