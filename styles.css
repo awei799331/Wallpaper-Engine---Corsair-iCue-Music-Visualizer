@@ -27,22 +27,23 @@ body {
 
 /* When no subclasses are present, use a different transition */
 .mainImg:not(.flashing, .pulsing, .shaking) {
-  transition: all 1s ease-in-out 1s; /* Slower, different easing */
+  transition: scale 0.4s ease-out 0.4s, rotate 0.4s ease-out 0.4s,
+    filter 1s ease-in-out 1s; /* Slower, different easing */
 }
 
 .mainImg.flashing {
   filter: opacity(var(--opacity));
-  transition: all 0.3s ease-in-out 0s;
+  transition: all 0.4s ease-in-out 0s;
 }
 
 .mainImg.pulsing {
   scale: var(--zoomscale);
-  transition: all 0.3s ease-out 0s;
+  transition: all 0.4s ease-out 0s;
 }
 
 .mainImg.shaking {
   rotate: var(--rotate);
-  transition: all 0.3s ease-out 0s;
+  transition: all 0.4s ease-out 0s;
 }
 
 .hidden {
