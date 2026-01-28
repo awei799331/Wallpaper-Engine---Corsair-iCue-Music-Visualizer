@@ -52,6 +52,7 @@ class PropertyManager {
     keyboardvisualizer: true,
     lightingnodelightcount: 0,
     lightingnodelightthreshold: 2,
+    textcolor: [255, 255, 255],
     lightingnodevisualizer: false,
     lightsensitivity: 1,
     musicbars: true,
@@ -195,7 +196,8 @@ class PropertyManager {
       this.visualizerCanvas.width,
       this.visualizerCanvas.height,
     );
-    this.visualizerCanvasCtx.fillStyle = "white";
+    const [r, g, b] = this.properties.textcolor;
+    this.visualizerCanvasCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
     const between = this.visualizerCanvas.width / 64;
     const offset = 0.5 * this.properties.barwidth;
     for (let i = 0; i < audioArray.length / 2; i += 2) {
@@ -659,6 +661,20 @@ class PropertyManager {
     }
   };
 
+  handleTextColorChange = (property) => {
+    const textcolor = property.value.split(" ").map((c) => {
+      return Math.round(c * 255);
+    });
+    if (textcolor.length === 3) {
+      this.properties.textcolor = textcolor;
+      applyStyle(
+        [this.clockDisplay],
+        "color",
+        `rgb(${textcolor[0]}, ${textcolor[1]}, ${textcolor[2]})`,
+      );
+    }
+  };
+
   /**
    * @static
    * Constant map of slugs to handlers
@@ -691,6 +707,7 @@ class PropertyManager {
     lightingnodevisualizer: "handleLightingNodeVisualizerChange",
     musicbars: "handleMusicBarsChange",
     imageopacity: "handleImageOpacityChange",
+    textcolor: "handleTextColorChange",
   };
 
   /**
@@ -765,7 +782,6 @@ const wallpaperAudioListener = (audioArray) => {
   // Render bars along the full width of the canvas
   // I took the last 6 bars and made the bass bars wider
   // each bar is 1 pixel
-
   const bassRange = 6;
   let bassSound = 0;
   for (let i = 0; i < bassRange; ++i) {
@@ -791,9 +807,7 @@ const wallpaperAudioListener = (audioArray) => {
   }
 };
 
-if (window.wallpaperRegisterAudioListener) {
-  window.wallpaperRegisterAudioListener(wallpaperAudioListener);
-}
+window.wallpaperRegisterAudioListener(wallpaperAudioListener);
 
 // Listen for plugins being loaded
 window.wallpaperPluginListener = {
