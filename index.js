@@ -180,18 +180,6 @@ class PropertyManager {
         Math.min(this.properties.imageopacity, 1),
       );
     }
-  };
-
-  drawKeyboardCanvas = (audioArray) => {
-    // 64 bars left, 64 bars right
-    // Clear the canvas and set it to black
-    this.audioCanvasCtx.fillStyle = "rgb(0,0,0)";
-    this.audioCanvasCtx.fillRect(
-      0,
-      0,
-      this.audioCanvas.width,
-      this.audioCanvas.height,
-    );
 
     if (
       this.properties.backgroundshake &&
