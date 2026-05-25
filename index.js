@@ -277,7 +277,6 @@ class PropertyManager {
         height,
       );
     }
-  };
 
     // Draw other bars
     for (
