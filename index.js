@@ -45,6 +45,8 @@ class PropertyManager {
     clock: true,
     experimentalsettings: false,
     extrabassbars: 3,
+    imagecycledirectory: "",
+    imagecycleseconds: 300,
     imageopacity: 0.3,
     initialbackgroundzoom: 0.02,
     keyboardcolorhigh: [0, 0, 255],
@@ -60,9 +62,13 @@ class PropertyManager {
 
   constructor() {
     this.fps = PropertyManager.defaultFps;
-    this.properties = PropertyManager.defaultProperties;
+    // Clone defaults to avoid shared mutable state between instances
+    this.properties = JSON.parse(
+      JSON.stringify(PropertyManager.defaultProperties),
+    );
     this.timeInterval = null;
     this.visualizerInterval = null;
+    this.imageCycleInterval = null;
 
     this.icueDevices = [];
     this.fanUpdateList = [];
@@ -80,6 +86,9 @@ class PropertyManager {
     this.backgroundVideoSrc = document.getElementById("backgroundVideoSrc");
     this.clockDisplay = document.getElementById("clock");
     this.mainImgSelector = document.querySelectorAll(".mainImg");
+
+    // Bind callback for image cycle updates
+    this.onImageCycleUpdate = this.onImageCycleUpdate.bind(this);
 
     if (this.clockDisplay && this.properties.clock) {
       this.timeInterval = setInterval(this.time, 1000);
@@ -115,7 +124,7 @@ class PropertyManager {
     // set background video to hidden
     this.backgroundVideoSrc.setAttribute("src", "");
     this.backgroundVideo.pause();
-    hide(backgroundVideo);
+    hide(this.backgroundVideo);
     this.backgroundVideo.currentTime = 0;
     // set image
     applyStyle(this.mainImgSelector, "--image", `url(${defaultWallpaper})`);
@@ -454,7 +463,7 @@ class PropertyManager {
 
       // set background video to none
       this.backgroundVideo.pause();
-      hide(backgroundVideo);
+      hide(this.backgroundVideo);
       this.backgroundVideo.currentTime = 0;
       // set background image
       applyStyle(
@@ -484,7 +493,7 @@ class PropertyManager {
       );
       this.backgroundVideo.load();
       this.backgroundVideo.currentTime = 0;
-      show(backgroundVideo);
+      show(this.backgroundVideo);
       this.backgroundVideo.play();
       // set image to hidden
       hide(this.backgroundImage);
@@ -611,7 +620,7 @@ class PropertyManager {
 
   handleKeyboardVisualizerChange = (property) => {
     this.properties.keyboardvisualizer = property.value;
-    if (this.properties.keyboardvisualizer && visualizerInterval != null) {
+    if (this.properties.keyboardvisualizer && this.visualizerInterval != null) {
       // Run at `this.fps` frames per second
     } else {
       this.fanUpdateList = [];
@@ -648,7 +657,7 @@ class PropertyManager {
   };
 
   handleMusicBarsChange = (property) => {
-    if (properties.musicbars.value) {
+    if (property.value) {
       this.properties.musicbars = property.value;
     } else {
       this.properties.musicbars = false;
@@ -675,6 +684,108 @@ class PropertyManager {
     }
   };
 
+  handleImageCycleDirectoryChange = (property) => {
+    this.stopImageCycle();
+    // Be defensive: accept falsy property and avoid crashing if directory is missing
+    this.properties.imagecycledirectory =
+      property && property.value ? property.value : "";
+    if (this.properties.imagecycledirectory) {
+      // Only start if Wallpaper Engine exposes the helper
+      if (typeof window.wallpaperRequestRandomFileForProperty === "function") {
+        this.startImageCycle();
+      }
+    }
+  };
+
+  handleImageCycleSecondsChange = (property) => {
+    this.stopImageCycle();
+    this.properties.imagecycleseconds = property.value;
+    if (this.properties.imagecycledirectory) {
+      this.startImageCycle();
+    }
+  };
+
+  startImageCycle = () => {
+    // Load first image immediately
+    if (typeof window.wallpaperRequestRandomFileForProperty !== "function")
+      return;
+
+    try {
+      window.wallpaperRequestRandomFileForProperty(
+        "imagecycledirectory",
+        this.onImageCycleUpdate,
+      );
+    } catch (e) {
+      // Fail silently if the API call errors
+      return;
+    }
+
+    // Set up interval for cycling (property is in seconds)
+    const secs = Number(
+      this.properties.imagecycleseconds ??
+        this.properties.imagecycleminutes ??
+        300,
+    );
+    if (!Number.isFinite(secs) || secs <= 0) return;
+    const intervalMs = Math.max(1000, Math.floor(secs * 1000));
+    try {
+      this.imageCycleInterval = setInterval(() => {
+        try {
+          window.wallpaperRequestRandomFileForProperty(
+            "imagecycledirectory",
+            this.onImageCycleUpdate,
+          );
+        } catch (e) {
+          // ignore errors during periodic requests
+        }
+      }, intervalMs);
+    } catch (e) {
+      // if setInterval or other fails, don't crash
+      this.imageCycleInterval = null;
+    }
+  };
+
+  stopImageCycle = () => {
+    if (this.imageCycleInterval) {
+      clearInterval(this.imageCycleInterval);
+      this.imageCycleInterval = null;
+    }
+  };
+
+  onImageCycleUpdate = (propertyName, filePath) => {
+    try {
+      if (!filePath) return;
+      const img = new Image();
+      // Make sure we handle encoded paths from Wallpaper Engine, but tolerate decode errors
+      let decodedPath = filePath;
+      try {
+        decodedPath = decodeURIComponent(filePath);
+      } catch (e) {
+        // keep original filePath if decode fails
+      }
+      const src = `file:///${decodedPath}`;
+      img.onload = () => {
+        try {
+          // Use the loaded Image object's src so the browser references the actual loaded image
+          applyStyle(this.mainImgSelector, "--image", `url(${img.src})`);
+        } catch (e) {
+          // ignore styling errors
+        }
+      };
+      img.onerror = () => {
+        // silently ignore failed image loads
+      };
+      // Start loading the image
+      try {
+        img.src = src;
+      } catch (e) {
+        // ignore
+      }
+    } catch (e) {
+      // top-level guard: do not allow any exception to bubble up
+    }
+  };
+
   /**
    * @static
    * Constant map of slugs to handlers
@@ -697,6 +808,8 @@ class PropertyManager {
     barwidth: "handleBarWidthChange",
     clock: "handleClockChange",
     experimentalsettings: "handleExperimentalSettingsChange",
+    imagecycledirectory: "handleImageCycleDirectoryChange",
+    imagecycleseconds: "handleImageCycleSecondsChange",
     initialbackgroundzoom: "handleInitialBackgroundZoomChange",
     keyboardcolorhigh: "handleKeyboardColorHighChange",
     keyboardcolorlow: "handleKeyboardColorLowChange",
@@ -807,7 +920,12 @@ const wallpaperAudioListener = (audioArray) => {
   }
 };
 
-window.wallpaperRegisterAudioListener(wallpaperAudioListener);
+if (
+  window.wallpaperRegisterAudioListener !== null &&
+  window.wallpaperRegisterAudioListener !== undefined
+) {
+  window.wallpaperRegisterAudioListener(wallpaperAudioListener);
+}
 
 // Listen for plugins being loaded
 window.wallpaperPluginListener = {
