@@ -5,16 +5,16 @@
   "general": {
     "properties": {
       "animatebackground": {
-        "index": 15,
-        "order": 115,
+        "index": 17,
+        "order": 117,
         "text": "Animate Background",
         "type": "bool",
         "value": true
       },
       "backgroundflash": {
         "condition": "animatebackground.value==true",
-        "index": 16,
-        "order": 116,
+        "index": 18,
+        "order": 118,
         "text": "Background Flash",
         "type": "bool",
         "value": true
@@ -22,10 +22,10 @@
       "backgroundflashamount": {
         "condition": "animatebackground.value==true&&backgroundflash.value==true",
         "fraction": true,
-        "index": 17,
+        "index": 19,
         "max": 1,
         "min": 0,
-        "order": 117,
+        "order": 119,
         "precision": 2,
         "step": 0.1,
         "text": "Background Flash Amount",
@@ -35,10 +35,10 @@
       "backgroundflashthreshold": {
         "condition": "animatebackground.value==true&&backgroundflash.value==true",
         "fraction": true,
-        "index": 18,
+        "index": 20,
         "max": 1,
         "min": 0,
-        "order": 118,
+        "order": 120,
         "precision": 3,
         "step": 0.01,
         "text": "Background Flash Threshold",
@@ -55,28 +55,28 @@
       },
       "backgroundpositionx": {
         "fraction": false,
-        "index": 12,
+        "index": 14,
         "max": 100,
         "min": -100,
-        "order": 112,
+        "order": 114,
         "text": "Background Position X",
         "type": "slider",
         "value": 30
       },
       "backgroundpositiony": {
         "fraction": false,
-        "index": 13,
+        "index": 15,
         "max": 100,
         "min": -100,
-        "order": 113,
+        "order": 115,
         "text": "Background Position Y",
         "type": "slider",
         "value": 10
       },
       "backgroundpulse": {
         "condition": "animatebackground.value==true",
-        "index": 19,
-        "order": 119,
+        "index": 21,
+        "order": 121,
         "text": "Background Pulse",
         "type": "bool",
         "value": true
@@ -84,10 +84,10 @@
       "backgroundpulseamount": {
         "condition": "animatebackground.value==true&&backgroundpulse.value==true",
         "fraction": true,
-        "index": 20,
+        "index": 22,
         "max": 2,
         "min": 0,
-        "order": 120,
+        "order": 122,
         "precision": 2,
         "step": 0.01,
         "text": "Background Pulse Amount",
@@ -97,10 +97,10 @@
       "backgroundpulsethreshold": {
         "condition": "animatebackground.value==true&&backgroundpulse.value==true",
         "fraction": true,
-        "index": 21,
+        "index": 23,
         "max": 1,
         "min": 0,
-        "order": 121,
+        "order": 123,
         "precision": 3,
         "step": 0.01,
         "text": "Background Pulse Threshold",
@@ -109,8 +109,8 @@
       },
       "backgroundshake": {
         "condition": "animatebackground.value==true",
-        "index": 22,
-        "order": 122,
+        "index": 24,
+        "order": 124,
         "text": "Background Shake",
         "type": "bool",
         "value": true
@@ -118,10 +118,10 @@
       "backgroundshakeamount": {
         "condition": "animatebackground.value==true&&backgroundshake.value==true",
         "fraction": true,
-        "index": 23,
+        "index": 25,
         "max": 5,
         "min": 0,
-        "order": 123,
+        "order": 125,
         "precision": 2,
         "step": 0.1,
         "text": "Background Shake Amount",
@@ -131,10 +131,10 @@
       "backgroundshakethreshold": {
         "condition": "animatebackground.value==true&&backgroundshake.value==true",
         "fraction": true,
-        "index": 24,
+        "index": 26,
         "max": 1,
         "min": 0,
-        "order": 124,
+        "order": 126,
         "precision": 3,
         "step": 0.01,
         "text": "Background Shake Threshold",
@@ -152,34 +152,53 @@
       "barwidth": {
         "condition": "musicbars.value==true",
         "fraction": false,
-        "index": 10,
+        "index": 12,
         "max": 32,
         "min": 1,
-        "order": 110,
+        "order": 112,
         "text": "Bar Width",
         "type": "slider",
         "value": 4
       },
       "clock": {
-        "index": 8,
-        "order": 108,
+        "index": 10,
+        "order": 110,
         "text": "Clock",
         "type": "bool",
         "value": true
       },
       "experimentalsettings": {
-        "index": 27,
-        "order": 127,
+        "index": 29,
+        "order": 129,
         "text": "EXPERIMENTAL SETTINGS",
         "type": "bool",
         "value": false
       },
+      "imagecycledirectory": {
+        "index": 3,
+        "mode": "ondemand",
+        "order": 103,
+        "text": "Image Cycle Directory",
+        "type": "directory",
+        "value": ""
+      },
+      "imagecycleseconds": {
+        "condition": "imagecycledirectory.value!=''",
+        "fraction": false,
+        "index": 5,
+        "max": 86400,
+        "min": 5,
+        "order": 105,
+        "text": "Image Cycle Duration (seconds)",
+        "type": "slider",
+        "value": 600
+      },
       "imageopacity": {
         "fraction": true,
-        "index": 11,
+        "index": 13,
         "max": 1,
         "min": 0,
-        "order": 111,
+        "order": 113,
         "precision": 2,
         "step": 0.1,
         "text": "Image Opacity",
@@ -195,10 +214,10 @@
       },
       "initialbackgroundzoom": {
         "fraction": true,
-        "index": 14,
+        "index": 16,
         "max": 1,
         "min": -1,
-        "order": 114,
+        "order": 116,
         "precision": 3,
         "step": 0.01,
         "text": "Initial Background Zoom",
@@ -207,23 +226,23 @@
       },
       "keyboardcolorhigh": {
         "condition": "keyboardvisualizer.value===true",
-        "index": 6,
-        "order": 106,
+        "index": 8,
+        "order": 108,
         "text": "Keyboard Color High",
         "type": "color",
         "value": "1 0 0"
       },
       "keyboardcolorlow": {
         "condition": "keyboardvisualizer.value===true",
-        "index": 5,
-        "order": 105,
+        "index": 7,
+        "order": 107,
         "text": "Keyboard Color Low",
         "type": "color",
         "value": "0 0 1"
       },
       "keyboardvisualizer": {
-        "index": 3,
-        "order": 103,
+        "index": 4,
+        "order": 104,
         "text": "Keyboard Visualizer",
         "type": "bool",
         "value": true
@@ -231,10 +250,10 @@
       "lightingnodelightcount": {
         "condition": "lightingnodevisualizer.value==true",
         "fraction": false,
-        "index": 25,
+        "index": 27,
         "max": 204,
         "min": 0,
-        "order": 125,
+        "order": 127,
         "text": "Lighting Node Light Count",
         "type": "slider",
         "value": 0
@@ -242,28 +261,28 @@
       "lightingnodelightthreshold": {
         "condition": "lightingnodevisualizer.value==true",
         "fraction": false,
-        "index": 26,
+        "index": 28,
         "max": 204,
         "min": 0,
-        "order": 126,
+        "order": 128,
         "text": "Lighting Node Light Threshold",
         "type": "slider",
         "value": 2
       },
       "lightingnodevisualizer": {
         "condition": "experimentalsettings.value===true",
-        "index": 28,
-        "order": 128,
+        "index": 30,
+        "order": 130,
         "text": "EXPERIMENTAL: Lighting Node Visualizer - DO NOT ENABLE IF YOU DON'T USE A LIGHTING NODE",
         "type": "bool",
         "value": false
       },
       "lightsensitivity": {
         "fraction": true,
-        "index": 4,
+        "index": 6,
         "max": 5,
         "min": 0,
-        "order": 104,
+        "order": 106,
         "precision": 2,
         "step": 0.1,
         "text": "Light Sensitivity",
@@ -271,8 +290,8 @@
         "value": 1
       },
       "musicbars": {
-        "index": 9,
-        "order": 109,
+        "index": 11,
+        "order": 111,
         "text": "Music Bars",
         "type": "bool",
         "value": true
@@ -284,8 +303,8 @@
         "value": "0 0 0"
       },
       "textcolor": {
-        "index": 7,
-        "order": 107,
+        "index": 9,
+        "order": 109,
         "text": "Text Color",
         "type": "color",
         "value": "1 1 1"
