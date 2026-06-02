@@ -694,6 +694,9 @@ class PropertyManager {
       if (typeof window.wallpaperRequestRandomFileForProperty === "function") {
         this.startImageCycle();
       }
+    } else {
+      // If the user cleared the folder selection, revert to the default wallpaper
+      this.changeToDefaultWallpaper();
     }
   };
 
