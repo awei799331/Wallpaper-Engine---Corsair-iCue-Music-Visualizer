@@ -27,3 +27,7 @@
 
 - Add image gallery support
 - Cleanup
+
+### v4.1
+
+- Bug fixes to background source selection

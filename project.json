@@ -1,6 +1,6 @@
 {
 	"contentrating" : "Everyone",
-	"description" : "The music visualizer is for Corsair keyboards with support for iCue. I don't own a Razer keyboard, so there will not be Chroma support unfortunately.\n\nIf you choose to upload your own background, make sure to not rename or move the file, or you would have to reupload it again.\n\nFor suggestions / bug reports, submit an issue on the GitHub repository: https://github.com/awei799331/Wallpaper-Engine---Corsair-iCue-Music-Visualizer\n\nPerformance:\nGPU usage (RTX 3060 Ti):\nMax of 25% at ~500MHz / 1710MHz Boost Clock\nTurning off all background animations reduces it to around 10% of ~500MHz / 1710 MHz.\nClock only reduces GPU load to 3% of of ~200MHz / 1710 MHz.\n\nv1.0: Release\nv1.1: Bug fixes,configurable FPS, experimental Corsair Lighting Node effects\nv2.0: Support for WEBM video format\nv3.0: Customize text color\nv4.0: Support folders for background images",
+	"description" : "The music visualizer is for Corsair keyboards with support for iCue. I don't own a Razer keyboard, so there will not be Chroma support unfortunately.\n\nIf you choose to upload your own background, make sure to not rename or move the file, or you would have to reupload it again.\n\nFor suggestions / bug reports, submit an issue on the GitHub repository: https://github.com/awei799331/Wallpaper-Engine---Corsair-iCue-Music-Visualizer\n\nPerformance:\nGPU usage (RTX 3060 Ti):\nMax of 25% at ~500MHz / 1710MHz Boost Clock\nTurning off all background animations reduces it to around 10% of ~500MHz / 1710 MHz.\nClock only reduces GPU load to 3% of of ~200MHz / 1710 MHz.\n\nv1.0: Release\nv1.1: Bug fixes,configurable FPS, experimental Corsair Lighting Node effects\nv2.0: Support for WEBM video format\nv3.0: Customize text color\nv4.0: Support folders for background images\nv4.1: Bug fixes",
 	"file" : "index.html",
 	"general" : 
 	{
@@ -351,8 +351,8 @@
 	"ratingviolence" : "none",
 	"tags" : [ "Abstract" ],
 	"title" : "Fully Customizable Wallpaper - iCue Music Visualizer v4.0",
-	"type" : "Web",
-	"version" : 15,
+	"type" : "web",
+	"version" : 16,
 	"visibility" : "public",
 	"workshopid" : "2897257202",
 	"workshopurl" : "steam://url/CommunityFilePage/2897257202"
