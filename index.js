@@ -126,9 +126,24 @@ class PropertyManager {
     this.backgroundVideo.pause();
     hide(this.backgroundVideo);
     this.backgroundVideo.currentTime = 0;
-    // set image
-    applyStyle(this.mainImgSelector, "--image", `url(${defaultWallpaper})`);
+    // set image and initialize CSS vars
+    this.setImageStyles(defaultWallpaper);
     show(this.backgroundImage);
+  };
+
+  // Helper: set background image URL and initialize base/animated CSS variables
+  setImageStyles = (imageUrl) => {
+    applyStyle(this.mainImgSelector, "--image", `url(${imageUrl})`);
+    const baseZoom = 1 + this.properties.initialbackgroundzoom;
+    applyStyle(this.mainImgSelector, "--basezoomscale", baseZoom);
+    applyStyle(this.mainImgSelector, "--zoomscale", baseZoom);
+    applyStyle(
+      this.mainImgSelector,
+      "--baseopacity",
+      this.properties.imageopacity,
+    );
+    applyStyle(this.mainImgSelector, "--opacity", this.properties.imageopacity);
+    applyStyle(this.mainImgSelector, "--rotate", 0);
   };
 
   // Animate background image
@@ -458,19 +473,21 @@ class PropertyManager {
     }
 
     if (property.value) {
-      this.properties.backgroundimage = `file:///${property.value}`;
+      let decoded = property.value;
+      try {
+        decoded = decodeURIComponent(property.value);
+      } catch (e) {
+        // keep raw value on decode error
+      }
+      this.properties.backgroundimage = `file:///${decoded}`;
       this.properties.backgroundvideo = "";
 
       // set background video to none
       this.backgroundVideo.pause();
       hide(this.backgroundVideo);
       this.backgroundVideo.currentTime = 0;
-      // set background image
-      applyStyle(
-        this.mainImgSelector,
-        "--image",
-        `url(${this.properties.backgroundimage})`,
-      );
+      // set background image and initialize CSS vars
+      this.setImageStyles(this.properties.backgroundimage);
       show(this.backgroundImage);
     } else {
       this.changeToDefaultWallpaper();
@@ -846,10 +863,57 @@ class PropertyManager {
    * @param properties
    */
   handlePropertiesObject = (properties) => {
+    // Apply all non-media properties first so UI state is updated.
+    const mediaKeys = new Set([
+      "imagecycledirectory",
+      "backgroundvideo",
+      "backgroundimage",
+    ]);
     for (const slug in properties) {
-      if (properties.hasOwnProperty(slug)) {
+      if (properties.hasOwnProperty(slug) && !mediaKeys.has(slug)) {
         this.handlePropertyChange(slug, properties[slug]);
       }
+    }
+
+    // Resolve media properties with priority: directory > video > image.
+    // Treat a media property as "set" only when its `value` is truthy.
+    // If a media property is present but empty, handle the clearing action
+    // but do not let it block a lower-priority non-empty media value in
+    // the same payload from applying.
+
+    const dirProp = properties.imagecycledirectory ?? null;
+    const vidProp = properties.backgroundvideo ?? null;
+    const imgProp = properties.backgroundimage ?? null;
+
+    const dirSet = dirProp && dirProp.value;
+    const vidSet = vidProp && vidProp.value;
+    const imgSet = imgProp && imgProp.value;
+
+    // Directory wins if provided and non-empty
+    if (dirSet) {
+      this.handlePropertyChange("imagecycledirectory", dirProp);
+      return;
+    }
+
+    // If directory is present but empty, clear it now but allow lower-priority
+    // media in the same payload to override the default.
+    if (dirProp && !dirSet) {
+      this.handlePropertyChange("imagecycledirectory", dirProp);
+    }
+
+    // Video is next
+    if (vidSet) {
+      this.handlePropertyChange("backgroundvideo", vidProp);
+      return;
+    }
+
+    if (vidProp && !vidSet) {
+      this.handlePropertyChange("backgroundvideo", vidProp);
+    }
+
+    // Finally, image (may be set or cleared)
+    if (imgProp) {
+      this.handlePropertyChange("backgroundimage", imgProp);
     }
   };
 
