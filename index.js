@@ -26,6 +26,7 @@ const toggleClass = (selectorList, className, toggle) => {
 
 class PropertyManager {
   static defaultFps = 20;
+
   static defaultProperties = {
     animatebackground: true,
     backgroundflash: true,
@@ -62,14 +63,15 @@ class PropertyManager {
 
   constructor() {
     this.fps = PropertyManager.defaultFps;
+
     // Clone defaults to avoid shared mutable state between instances
     this.properties = JSON.parse(
       JSON.stringify(PropertyManager.defaultProperties),
     );
+
     this.timeInterval = null;
     this.visualizerInterval = null;
     this.imageCycleInterval = null;
-
     this.icueDevices = [];
     this.fanUpdateList = [];
 
@@ -77,10 +79,12 @@ class PropertyManager {
     this.audioCanvasCtx = this.audioCanvas.getContext("2d", {
       willReadFrequently: true,
     });
+
     this.visualizerCanvas = document.getElementById("visualizer");
     this.visualizerCanvasCtx = this.visualizerCanvas.getContext("2d", {
       willReadFrequently: true,
     });
+
     this.backgroundImage = document.getElementById("background");
     this.backgroundVideo = document.getElementById("backgroundVideo");
     this.backgroundVideoSrc = document.getElementById("backgroundVideoSrc");
@@ -101,10 +105,12 @@ class PropertyManager {
     const s = d.getSeconds();
     const m = d.getMinutes();
     const h = d.getHours();
+
     const timeText = `${String(h).padStart(2, "0")}:${String(m).padStart(
       2,
       "0",
     )}:${String(s).padStart(2, "0")}`;
+
     return timeText;
   }
 
@@ -114,47 +120,130 @@ class PropertyManager {
   };
 
   /**
-   * Useful helper functions
+   * Background display helpers
    */
-  changeToDefaultWallpaper = () => {
-    const defaultWallpaper = "default_wallpaper.jpg";
-    this.properties.backgroundvideo = "";
-    this.properties.backgroundimage = "";
 
-    // set background video to hidden
+  // Display the default wallpaper.
+  // IMPORTANT: This function only changes the visual state.
+  // It does NOT clear the user's media properties.
+  displayDefaultWallpaper = () => {
+    this.stopImageCycle();
+
+    // Set background video to hidden
     this.backgroundVideoSrc.setAttribute("src", "");
     this.backgroundVideo.pause();
     hide(this.backgroundVideo);
     this.backgroundVideo.currentTime = 0;
-    // set image and initialize CSS vars
-    this.setImageStyles(defaultWallpaper);
+
+    // Set default background image
+    this.setImageStyles("default_wallpaper.jpg");
     show(this.backgroundImage);
+  };
+
+  // Display the selected background image.
+  displayBackgroundImage = () => {
+    this.stopImageCycle();
+
+    // Hide background video
+    this.backgroundVideo.pause();
+    hide(this.backgroundVideo);
+    this.backgroundVideo.currentTime = 0;
+    this.backgroundVideoSrc.setAttribute("src", "");
+
+    // Set background image
+    this.setImageStyles(this.properties.backgroundimage);
+    show(this.backgroundImage);
+  };
+
+  // Display the selected background video.
+  displayBackgroundVideo = () => {
+    this.stopImageCycle();
+
+    this.backgroundVideoSrc.setAttribute(
+      "src",
+      this.properties.backgroundvideo,
+    );
+
+    this.backgroundVideo.load();
+    this.backgroundVideo.currentTime = 0;
+
+    show(this.backgroundVideo);
+    hide(this.backgroundImage);
+
+    // The image is not being used
+    applyStyle(this.mainImgSelector, "--image", null);
+
+    this.backgroundVideo.play();
+  };
+
+  /**
+   * Resolve which background should currently be displayed.
+   *
+   * Priority:
+   *   1. Image directory
+   *   2. Video
+   *   3. Image
+   *   4. Default
+   *
+   * This function is the single source of truth for background selection.
+   */
+  resolveBackground = () => {
+    // Highest priority: image directory
+    if (this.properties.imagecycledirectory) {
+      this.startImageCycle();
+      return;
+    }
+
+    // Second priority: video
+    if (this.properties.backgroundvideo) {
+      this.displayBackgroundVideo();
+      return;
+    }
+
+    // Third priority: image
+    if (this.properties.backgroundimage) {
+      this.displayBackgroundImage();
+      return;
+    }
+
+    // Lowest priority: default
+    this.displayDefaultWallpaper();
+  };
+
+  // Backwards-compatible helper.
+  // This now only displays the default and does not destroy property state.
+  changeToDefaultWallpaper = () => {
+    this.displayDefaultWallpaper();
   };
 
   // Helper: set background image URL and initialize base/animated CSS variables
   setImageStyles = (imageUrl) => {
     applyStyle(this.mainImgSelector, "--image", `url(${imageUrl})`);
+
     const baseZoom = 1 + this.properties.initialbackgroundzoom;
+
     applyStyle(this.mainImgSelector, "--basezoomscale", baseZoom);
     applyStyle(this.mainImgSelector, "--zoomscale", baseZoom);
+
     applyStyle(
       this.mainImgSelector,
       "--baseopacity",
       this.properties.imageopacity,
     );
+
     applyStyle(this.mainImgSelector, "--opacity", this.properties.imageopacity);
+
     applyStyle(this.mainImgSelector, "--rotate", 0);
   };
 
   // Animate background image
   animateImage = (audioArray, bassSound) => {
-    // let totalSound = audioArray.reduce((a, b) => a + b, 0) / audioArray.length;
-
     if (
       this.properties.backgroundpulse &&
       bassSound >= this.properties.backgroundpulsethreshold
     ) {
       toggleClass(this.mainImgSelector, "pulsing", true);
+
       applyStyle(
         this.mainImgSelector,
         "--zoomscale",
@@ -163,6 +252,7 @@ class PropertyManager {
       );
     } else {
       toggleClass(this.mainImgSelector, "pulsing", false);
+
       applyStyle(
         this.mainImgSelector,
         "--zoomscale",
@@ -175,6 +265,7 @@ class PropertyManager {
       bassSound >= this.properties.backgroundflashthreshold
     ) {
       toggleClass(this.mainImgSelector, "flashing", true);
+
       applyStyle(
         this.mainImgSelector,
         "--opacity",
@@ -189,6 +280,7 @@ class PropertyManager {
       );
     } else {
       toggleClass(this.mainImgSelector, "flashing", false);
+
       applyStyle(
         this.mainImgSelector,
         "--opacity",
@@ -201,6 +293,7 @@ class PropertyManager {
       bassSound >= this.properties.backgroundshakethreshold
     ) {
       toggleClass(this.mainImgSelector, "shaking", true);
+
       applyStyle(
         this.mainImgSelector,
         "--rotate",
@@ -220,14 +313,20 @@ class PropertyManager {
       this.visualizerCanvas.width,
       this.visualizerCanvas.height,
     );
+
     const [r, g, b] = this.properties.textcolor;
+
     this.visualizerCanvasCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+
     const between = this.visualizerCanvas.width / 64;
     const offset = 0.5 * this.properties.barwidth;
+
     for (let i = 0; i < audioArray.length / 2; i += 2) {
-      // Create an audio bar with its hight depending on the audio volume level of the current frequency
+      // Create an audio bar with its height depending on
+      // the audio volume level of the current frequency
       const heightPercent = Math.min(audioArray[i], 1);
       const height = this.visualizerCanvas.height * heightPercent;
+
       this.visualizerCanvasCtx.fillRect(
         (i + 0.5) * between - offset,
         this.visualizerCanvas.height - height,
@@ -239,8 +338,10 @@ class PropertyManager {
 
   drawKeyboardCanvas = (audioArray) => {
     // 64 bars left, 64 bars right
+
     // Clear the canvas and set it to black
     this.audioCanvasCtx.fillStyle = "rgb(0,0,0)";
+
     this.audioCanvasCtx.fillRect(
       0,
       0,
@@ -256,7 +357,9 @@ class PropertyManager {
           1.5,
         1,
       );
+
       const height = this.audioCanvas.height * heightPercent;
+
       this.audioCanvasCtx.fillStyle = `rgb(${Math.floor(
         this.properties.keyboardcolorlow[0] +
           heightPercent *
@@ -273,10 +376,11 @@ class PropertyManager {
             (this.properties.keyboardcolorhigh[2] -
               this.properties.keyboardcolorlow[2]),
       )})`;
+
       this.audioCanvasCtx.fillRect(
         i * 2,
         this.audioCanvas.height - height,
-        2, // double wide
+        2,
         height,
       );
     }
@@ -287,13 +391,14 @@ class PropertyManager {
       i < audioArray.length / 2;
       ++i
     ) {
-      // Create an audio bar with its hight depending on the audio volume level of the current frequency
       const heightPercent = Math.min(
         audioArray[i - this.properties.extrabassbars] *
           this.properties.lightsensitivity,
         1,
       );
+
       const height = this.audioCanvas.height * heightPercent;
+
       this.audioCanvasCtx.fillStyle = `rgb(${Math.floor(
         this.properties.keyboardcolorlow[0] +
           heightPercent *
@@ -310,6 +415,7 @@ class PropertyManager {
             (this.properties.keyboardcolorhigh[2] -
               this.properties.keyboardcolorlow[2]),
       )})`;
+
       this.audioCanvasCtx.fillRect(
         i,
         this.audioCanvas.height - height,
@@ -335,9 +441,17 @@ class PropertyManager {
 
     for (let i = 0; i < this.properties.lightingnodelightcount; i++) {
       if (this.properties.lightingnodevisualizer && i < actualLightsOn) {
-        this.fanUpdateList.push({ ledId: i, ...colorWheel[i % 8] });
+        this.fanUpdateList.push({
+          ledId: i,
+          ...colorWheel[i % 8],
+        });
       } else {
-        this.fanUpdateList.push({ ledId: i, r: 0, g: 0, b: 0 });
+        this.fanUpdateList.push({
+          ledId: i,
+          r: 0,
+          g: 0,
+          b: 0,
+        });
       }
     }
   };
@@ -345,10 +459,12 @@ class PropertyManager {
   // Takes canvas and converts it to an array
   static getEncodedCanvasImageData(canvas, canvasCtx) {
     const imageData = canvasCtx.getImageData(0, 0, canvas.width, canvas.height);
+
     const colorArray = [];
 
     for (let d = 0; d < imageData.data.length; d += 4) {
       const write = (d / 4) * 3;
+
       colorArray[write] = imageData.data[d]; // R
       colorArray[write + 1] = imageData.data[d + 1]; // G
       colorArray[write + 2] = imageData.data[d + 2]; // B
@@ -365,7 +481,7 @@ class PropertyManager {
       !this.properties.lightingnodevisualizer
     )
       return;
-    // Find the keyboard, its type is CDT_Keyboard as described in the SDK manual
+
     let keyboard = null;
     let lightingNode = null;
 
@@ -373,6 +489,7 @@ class PropertyManager {
       if (device.type === "CDT_Keyboard") {
         keyboard = device;
       }
+
       if (device.type === "CDT_LightingNodePro") {
         lightingNode = device;
       }
@@ -383,6 +500,7 @@ class PropertyManager {
         this.audioCanvas,
         this.audioCanvasCtx,
       );
+
       window.cue.setLedColorsByImageData(
         [keyboard.id],
         encodedImageData,
@@ -390,6 +508,7 @@ class PropertyManager {
         this.audioCanvas.height,
       );
     }
+
     if (this.properties.lightingnodevisualizer && !!lightingNode) {
       for (let i = 0; i < this.fanUpdateList.length; i++) {
         this.fanUpdateList[i].ledId =
@@ -403,10 +522,10 @@ class PropertyManager {
   // Get all Corsair devices
   setupDevices = () => {
     this.icueDevices = [];
+
     // Ask for the total amount of devices
     window.cue.getDeviceCount((deviceCount) => {
       for (let d = 0; d < deviceCount; ++d) {
-        // Get device info on each device
         window.cue.getDeviceInfo(d, (deviceInfo) => {
           // Put the ID on the device, useful later on
           deviceInfo.id = d;
@@ -419,7 +538,7 @@ class PropertyManager {
               },
             );
           }
-          // Store all our devices in an array
+
           this.icueDevices.push(deviceInfo);
         });
       }
@@ -432,24 +551,29 @@ class PropertyManager {
 
   handleAnimateBackgroundChange = (property) => {
     this.properties.animatebackground = property.value;
+
     if (!property.value) {
       this.properties.animatebackground = false;
+
       applyStyle(
         this.mainImgSelector,
         "--zoomscale",
         1 + this.properties.initialbackgroundzoom,
       );
+
       applyStyle(
         this.mainImgSelector,
         "--opacity",
         this.properties.imageopacity,
       );
+
       applyStyle(this.mainImgSelector, "--rotate", 0);
     }
   };
 
   handleBackgroundFlashChange = (property) => {
     this.properties.backgroundflash = property.value;
+
     if (!this.properties.backgroundflash) {
       applyStyle(
         this.mainImgSelector,
@@ -468,60 +592,37 @@ class PropertyManager {
   };
 
   handleBackgroundImageChange = (property) => {
-    if (this.properties.backgroundvideo) {
-      return;
-    }
-
     if (property.value) {
       let decoded = property.value;
+
       try {
         decoded = decodeURIComponent(property.value);
       } catch (e) {
         // keep raw value on decode error
       }
-      this.properties.backgroundimage = `file:///${decoded}`;
-      this.properties.backgroundvideo = "";
 
-      // set background video to none
-      this.backgroundVideo.pause();
-      hide(this.backgroundVideo);
-      this.backgroundVideo.currentTime = 0;
-      // set background image and initialize CSS vars
-      this.setImageStyles(this.properties.backgroundimage);
-      show(this.backgroundImage);
+      this.properties.backgroundimage = `file:///${decoded}`;
     } else {
-      this.changeToDefaultWallpaper();
+      // Only clear the image property.
+      // Do NOT switch to the default here.
+      this.properties.backgroundimage = "";
     }
   };
 
   handleBackgroundVideoChange = (property) => {
-    if (this.properties.backgroundimage) {
-      return;
-    }
-
     if (property.value) {
       this.properties.backgroundvideo =
         "file:///" + decodeURIComponent(property.value);
-      this.properties.backgroundimage = "";
-      // set background video
-      this.backgroundVideoSrc.setAttribute(
-        "src",
-        this.properties.backgroundvideo,
-      );
-      this.backgroundVideo.load();
-      this.backgroundVideo.currentTime = 0;
-      show(this.backgroundVideo);
-      this.backgroundVideo.play();
-      // set image to hidden
-      hide(this.backgroundImage);
-      applyStyle(this.mainImgSelector, "--image", null);
     } else {
-      this.changeToDefaultWallpaper();
+      // Only clear the video property.
+      // Do NOT switch to the default here.
+      this.properties.backgroundvideo = "";
     }
   };
 
   handleBackgroundPositionXChange = (property) => {
     this.properties.backgroundpositionx = property.value;
+
     applyStyle(
       this.mainImgSelector,
       "--positionx",
@@ -531,6 +632,7 @@ class PropertyManager {
 
   handleBackgroundPositionYChange = (property) => {
     this.properties.backgroundpositiony = property.value;
+
     applyStyle(
       this.mainImgSelector,
       "--positiony",
@@ -540,6 +642,7 @@ class PropertyManager {
 
   handleBackgroundPulseChange = (property) => {
     this.properties.backgroundpulse = property.value;
+
     if (!this.properties.backgroundpulse) {
       applyStyle(
         this.mainImgSelector,
@@ -559,6 +662,7 @@ class PropertyManager {
 
   handleBackgroundShakeChange = (property) => {
     this.properties.backgroundshake = property.value;
+
     if (!this.properties.backgroundshake) {
       applyStyle(this.mainImgSelector, "--rotate", 0);
     }
@@ -578,6 +682,7 @@ class PropertyManager {
 
   handleClockChange = (property) => {
     this.properties.clock = property.value;
+
     if (this.properties.clock && !this.timeInterval) {
       this.timeInterval = setInterval(this.time, 1000);
     } else if (!this.properties.clock && this.timeInterval) {
@@ -589,20 +694,24 @@ class PropertyManager {
 
   handleExperimentalSettingsChange = (property) => {
     this.properties.experimentalsettings = property.value;
+
     if (!this.properties.experimentalsettings) {
       this.properties.lightingnodevisualizer = false;
+
       this.audioCanvasCtx.clearRect(
         0,
         0,
         this.audioCanvas.width,
         this.audioCanvas.height,
       );
+
       this.updateCanvas();
     }
   };
 
   handleImageOpacityChange = (property) => {
     this.properties.imageopacity = property.value;
+
     applyStyle(
       this.mainImgSelector,
       "--baseopacity",
@@ -612,6 +721,7 @@ class PropertyManager {
 
   handleInitialBackgroundZoomChange = (property) => {
     this.properties.initialbackgroundzoom = property.value ?? 0;
+
     applyStyle(
       this.mainImgSelector,
       "--basezoomscale",
@@ -623,6 +733,7 @@ class PropertyManager {
     const keyboardcolorhigh = property.value.split(" ").map((c) => {
       return Math.ceil(c * 255);
     });
+
     if (keyboardcolorhigh.length === 3)
       this.properties.keyboardcolorhigh = keyboardcolorhigh;
   };
@@ -631,14 +742,16 @@ class PropertyManager {
     const keyboardcolorlow = property.value.split(" ").map((c) => {
       return Math.round(c * 255);
     });
+
     if (keyboardcolorlow.length === 3)
       this.properties.keyboardcolorlow = keyboardcolorlow;
   };
 
   handleKeyboardVisualizerChange = (property) => {
     this.properties.keyboardvisualizer = property.value;
+
     if (this.properties.keyboardvisualizer && this.visualizerInterval != null) {
-      // Run at `this.fps` frames per second
+      // Run at this.fps frames per second
     } else {
       this.fanUpdateList = [];
       this.updateCanvas();
@@ -655,6 +768,7 @@ class PropertyManager {
 
   handleLightingNodeVisualizerChange = (property) => {
     this.properties.lightingnodevisualizer = property.value;
+
     if (
       !this.properties.lightingnodevisualizer ||
       this.visualizerInterval === null
@@ -665,6 +779,7 @@ class PropertyManager {
         this.audioCanvas.width,
         this.audioCanvas.height,
       );
+
       this.updateCanvas();
     }
   };
@@ -678,6 +793,7 @@ class PropertyManager {
       this.properties.musicbars = property.value;
     } else {
       this.properties.musicbars = false;
+
       this.visualizerCanvasCtx.clearRect(
         0,
         0,
@@ -691,8 +807,10 @@ class PropertyManager {
     const textcolor = property.value.split(" ").map((c) => {
       return Math.round(c * 255);
     });
+
     if (textcolor.length === 3) {
       this.properties.textcolor = textcolor;
+
       applyStyle(
         [this.clockDisplay],
         "color",
@@ -702,34 +820,31 @@ class PropertyManager {
   };
 
   handleImageCycleDirectoryChange = (property) => {
+    // Only update the stored property here.
+    // Background resolution is handled centrally.
     this.stopImageCycle();
-    // Be defensive: accept falsy property and avoid crashing if directory is missing
+
     this.properties.imagecycledirectory =
       property && property.value ? property.value : "";
-    if (this.properties.imagecycledirectory) {
-      // Only start if Wallpaper Engine exposes the helper
-      if (typeof window.wallpaperRequestRandomFileForProperty === "function") {
-        this.startImageCycle();
-      }
-    } else {
-      // If the user cleared the folder selection, revert to the default wallpaper
-      this.changeToDefaultWallpaper();
-    }
   };
 
   handleImageCycleSecondsChange = (property) => {
     this.stopImageCycle();
+
     this.properties.imagecycleseconds = property.value;
-    if (this.properties.imagecycledirectory) {
-      this.startImageCycle();
-    }
   };
 
   startImageCycle = () => {
-    // Load first image immediately
+    if (!this.properties.imagecycledirectory) return;
+
     if (typeof window.wallpaperRequestRandomFileForProperty !== "function")
       return;
 
+    // Prevent duplicate intervals if resolveBackground()
+    // is called multiple times while the directory is active.
+    if (this.imageCycleInterval !== null) return;
+
+    // Load first image immediately
     try {
       window.wallpaperRequestRandomFileForProperty(
         "imagecycledirectory",
@@ -740,16 +855,26 @@ class PropertyManager {
       return;
     }
 
-    // Set up interval for cycling (property is in seconds)
+    // Set up interval for cycling
+    // Property is in seconds.
     const secs = Number(
       this.properties.imagecycleseconds ??
         this.properties.imagecycleminutes ??
         300,
     );
+
     if (!Number.isFinite(secs) || secs <= 0) return;
+
     const intervalMs = Math.max(1000, Math.floor(secs * 1000));
+
     try {
       this.imageCycleInterval = setInterval(() => {
+        // Check again in case the property was cleared.
+        if (!this.properties.imagecycledirectory) {
+          this.stopImageCycle();
+          return;
+        }
+
         try {
           window.wallpaperRequestRandomFileForProperty(
             "imagecycledirectory",
@@ -766,7 +891,7 @@ class PropertyManager {
   };
 
   stopImageCycle = () => {
-    if (this.imageCycleInterval) {
+    if (this.imageCycleInterval !== null) {
       clearInterval(this.imageCycleInterval);
       this.imageCycleInterval = null;
     }
@@ -774,27 +899,53 @@ class PropertyManager {
 
   onImageCycleUpdate = (propertyName, filePath) => {
     try {
+      // Ignore stale callbacks after the directory has been cleared.
+      if (!this.properties.imagecycledirectory) return;
+
       if (!filePath) return;
+
       const img = new Image();
-      // Make sure we handle encoded paths from Wallpaper Engine, but tolerate decode errors
+
+      // Make sure we handle encoded paths from Wallpaper Engine,
+      // but tolerate decode errors.
       let decodedPath = filePath;
+
       try {
         decodedPath = decodeURIComponent(filePath);
       } catch (e) {
         // keep original filePath if decode fails
       }
+
       const src = `file:///${decodedPath}`;
+
       img.onload = () => {
         try {
-          // Use the loaded Image object's src so the browser references the actual loaded image
+          // Ignore the callback if the directory was cleared
+          // while this image was loading.
+          if (!this.properties.imagecycledirectory) return;
+
+          // Also make sure directory is still the highest-priority
+          // active source before displaying the image.
+          if (
+            this.properties.backgroundvideo ||
+            this.properties.backgroundimage
+          ) {
+            // Directory still has highest priority, so this is okay.
+          }
+
           applyStyle(this.mainImgSelector, "--image", `url(${img.src})`);
+
+          show(this.backgroundImage);
+          hide(this.backgroundVideo);
         } catch (e) {
           // ignore styling errors
         }
       };
+
       img.onerror = () => {
         // silently ignore failed image loads
       };
+
       // Start loading the image
       try {
         img.src = src;
@@ -807,7 +958,6 @@ class PropertyManager {
   };
 
   /**
-   * @static
    * Constant map of slugs to handlers
    */
   static handlerMap = {
@@ -845,11 +995,13 @@ class PropertyManager {
 
   /**
    * Handler methods for each property
+   *
    * @param slug
    * @param property
    */
   handlePropertyChange = (slug, property) => {
     const handlerName = PropertyManager.handlerMap[slug];
+
     const handler = this[handlerName];
 
     if (!!handler && typeof handler === "function" && !!property) {
@@ -858,72 +1010,51 @@ class PropertyManager {
   };
 
   /**
-   * Handles making changes to properties based on the Web Wallpaper Properties object
-   * See https://docs.wallpaperengine.io/en/web/customization/properties.html#creating-user-properties for spec
+   * Handles making changes to properties based on the
+   * Web Wallpaper Properties object.
+   *
+   * Media properties are updated first, then the background
+   * is resolved ONCE using the complete current state.
+   *
+   * Priority:
+   * directory > video > image > default
+   *
    * @param properties
    */
   handlePropertiesObject = (properties) => {
-    // Apply all non-media properties first so UI state is updated.
     const mediaKeys = new Set([
       "imagecycledirectory",
       "backgroundvideo",
       "backgroundimage",
     ]);
+
+    let mediaChanged = false;
+
     for (const slug in properties) {
-      if (properties.hasOwnProperty(slug) && !mediaKeys.has(slug)) {
-        this.handlePropertyChange(slug, properties[slug]);
+      if (!properties.hasOwnProperty(slug)) continue;
+
+      this.handlePropertyChange(slug, properties[slug]);
+
+      if (mediaKeys.has(slug)) {
+        mediaChanged = true;
       }
     }
 
-    // Resolve media properties with priority: directory > video > image.
-    // Treat a media property as "set" only when its `value` is truthy.
-    // If a media property is present but empty, handle the clearing action
-    // but do not let it block a lower-priority non-empty media value in
-    // the same payload from applying.
-
-    const dirProp = properties.imagecycledirectory ?? null;
-    const vidProp = properties.backgroundvideo ?? null;
-    const imgProp = properties.backgroundimage ?? null;
-
-    const dirSet = dirProp && dirProp.value;
-    const vidSet = vidProp && vidProp.value;
-    const imgSet = imgProp && imgProp.value;
-
-    // Directory wins if provided and non-empty
-    if (dirSet) {
-      this.handlePropertyChange("imagecycledirectory", dirProp);
-      return;
-    }
-
-    // If directory is present but empty, clear it now but allow lower-priority
-    // media in the same payload to override the default.
-    if (dirProp && !dirSet) {
-      this.handlePropertyChange("imagecycledirectory", dirProp);
-    }
-
-    // Video is next
-    if (vidSet) {
-      this.handlePropertyChange("backgroundvideo", vidProp);
-      return;
-    }
-
-    if (vidProp && !vidSet) {
-      this.handlePropertyChange("backgroundvideo", vidProp);
-    }
-
-    // Finally, image (may be set or cleared)
-    if (imgProp) {
-      this.handlePropertyChange("backgroundimage", imgProp);
+    // Resolve the background once after all properties
+    // in this update have been applied.
+    if (mediaChanged) {
+      this.resolveBackground();
     }
   };
 
   /**
-   *
    * @param number fps
    */
   handleFpsChange = (fps) => {
     clearInterval(this.visualizerInterval);
+
     this.fps = fps;
+
     if (this.fps === 0) {
       this.visualizerInterval = null;
     } else {
@@ -949,8 +1080,10 @@ window.wallpaperPropertyListener = {
   applyUserProperties: (properties) => {
     manager.handlePropertiesObject(properties);
   },
+
   applyGeneralProperties: function (properties) {
     const { fps } = properties;
+
     if (Number.isInteger(fps)) {
       manager.handleFpsChange(fps);
     }
@@ -963,11 +1096,14 @@ const wallpaperAudioListener = (audioArray) => {
   // I took the last 6 bars and made the bass bars wider
   // each bar is 1 pixel
   const bassRange = 6;
+
   let bassSound = 0;
+
   for (let i = 0; i < bassRange; ++i) {
     bassSound += audioArray[i];
     bassSound += audioArray[64 + i];
   }
+
   bassSound = Math.min(1, bassSound / (2 * bassRange));
 
   if (manager.properties.animatebackground) {
@@ -999,7 +1135,6 @@ window.wallpaperPluginListener = {
   onPluginLoaded: (name, version) => {
     // If the CUE plugin is loaded it means iCUE is available!
     if (name === "cue") {
-      // Retrieve all iCUE devices
       manager.setupDevices();
     }
   },
