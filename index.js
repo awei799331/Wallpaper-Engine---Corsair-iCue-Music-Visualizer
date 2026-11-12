@@ -73,6 +73,8 @@ class PropertyManager {
     this.visualizerInterval = null;
     this.imageCycleInterval = null;
     this.icueDevices = [];
+    // Invalidates callbacks from earlier or superseded iCUE enumerations.
+    this.deviceSetupGeneration = 0;
     this.fanUpdateList = [];
 
     this.audioCanvas = document.getElementById("keyboardCanvas");
@@ -474,7 +476,7 @@ class PropertyManager {
     return String.fromCharCode.apply(null, colorArray);
   }
 
-  // Writes the image data to the keyboard
+  // Writes the image data to Corsair devices.
   updateCanvas = () => {
     if (
       !this.properties.keyboardvisualizer &&
@@ -482,10 +484,13 @@ class PropertyManager {
     )
       return;
 
+    const cue = window.cue;
+    if (!cue) return;
+
     let keyboard = null;
     let lightingNode = null;
 
-    this.icueDevices.forEach(function (device) {
+    this.icueDevices.forEach((device) => {
       if (device.type === "CDT_Keyboard") {
         keyboard = device;
       }
@@ -495,13 +500,17 @@ class PropertyManager {
       }
     });
 
-    if (this.properties.keyboardvisualizer && !!keyboard) {
+    if (
+      this.properties.keyboardvisualizer &&
+      keyboard &&
+      typeof cue.setLedColorsByImageData === "function"
+    ) {
       const encodedImageData = PropertyManager.getEncodedCanvasImageData(
         this.audioCanvas,
         this.audioCanvasCtx,
       );
 
-      window.cue.setLedColorsByImageData(
+      cue.setLedColorsByImageData(
         [keyboard.id],
         encodedImageData,
         this.audioCanvas.width,
@@ -509,37 +518,104 @@ class PropertyManager {
       );
     }
 
-    if (this.properties.lightingnodevisualizer && !!lightingNode) {
-      for (let i = 0; i < this.fanUpdateList.length; i++) {
-        this.fanUpdateList[i].ledId =
-          lightingNode.ledPositions[this.fanUpdateList[i].ledId].ledId;
-      }
+    if (
+      this.properties.lightingnodevisualizer &&
+      lightingNode &&
+      Array.isArray(lightingNode.ledPositions) &&
+      typeof cue.setLedsColorsAsync === "function"
+    ) {
+      // fanUpdateList stores logical LED indexes. Never overwrite those indexes
+      // with device-specific IDs: this list is reused on subsequent frames.
+      const deviceLedUpdates = this.fanUpdateList.reduce((updates, light) => {
+        const ledPosition = lightingNode.ledPositions[light.ledId];
 
-      window.cue.setLedsColorsAsync(this.fanUpdateList);
+        if (ledPosition && ledPosition.ledId !== undefined) {
+          updates.push({
+            ...light,
+            ledId: ledPosition.ledId,
+          });
+        }
+
+        return updates;
+      }, []);
+
+      if (deviceLedUpdates.length > 0) {
+        cue.setLedsColorsAsync(deviceLedUpdates);
+      }
     }
   };
 
-  // Get all Corsair devices
+  // Get all Corsair devices. Each enumeration owns a generation so callbacks
+  // from an older enumeration cannot publish stale devices into the live list.
   setupDevices = () => {
+    const generation = ++this.deviceSetupGeneration;
     this.icueDevices = [];
 
-    // Ask for the total amount of devices
-    window.cue.getDeviceCount((deviceCount) => {
-      for (let d = 0; d < deviceCount; ++d) {
-        window.cue.getDeviceInfo(d, (deviceInfo) => {
-          // Put the ID on the device, useful later on
-          deviceInfo.id = d;
+    const cue = window.cue;
+    if (
+      !cue ||
+      typeof cue.getDeviceCount !== "function" ||
+      typeof cue.getDeviceInfo !== "function"
+    ) {
+      return;
+    }
 
-          if (!deviceInfo.ledPositions) {
-            window.cue.getLedPositionsByDeviceIndex(
-              deviceInfo.id,
-              (ledPositions) => {
-                deviceInfo.ledPositions = ledPositions;
-              },
-            );
+    cue.getDeviceCount((deviceCount) => {
+      if (generation !== this.deviceSetupGeneration) return;
+
+      const count = Number(deviceCount);
+      if (!Number.isSafeInteger(count) || count < 0) return;
+
+      const seenDeviceIndexes = new Set();
+
+      for (let d = 0; d < count; ++d) {
+        cue.getDeviceInfo(d, (deviceInfo) => {
+          if (
+            generation !== this.deviceSetupGeneration ||
+            seenDeviceIndexes.has(d) ||
+            !deviceInfo ||
+            typeof deviceInfo !== "object"
+          ) {
+            return;
           }
 
-          this.icueDevices.push(deviceInfo);
+          seenDeviceIndexes.add(d);
+
+          // Keep the device index captured by this enumeration; don't rely on
+          // callback completion order to identify a device.
+          const device = { ...deviceInfo, id: d };
+
+          const publishDevice = () => {
+            if (generation !== this.deviceSetupGeneration) return;
+
+            // A Lighting Node needs its LED map before it can be updated.
+            // Keyboards do not, so publish them without an unnecessary lookup.
+            this.icueDevices.push(device);
+          };
+
+          if (
+            device.type !== "CDT_LightingNodePro" ||
+            Array.isArray(device.ledPositions)
+          ) {
+            publishDevice();
+            return;
+          }
+
+          if (typeof cue.getLedPositionsByDeviceIndex !== "function") {
+            device.ledPositions = [];
+            publishDevice();
+            return;
+          }
+
+          cue.getLedPositionsByDeviceIndex(d, (ledPositions) => {
+            if (generation !== this.deviceSetupGeneration) return;
+
+            // Do not expose a partially initialized Lighting Node.
+            device.ledPositions = Array.isArray(ledPositions)
+              ? ledPositions
+              : [];
+            publishDevice();
+          });
         });
       }
     });
